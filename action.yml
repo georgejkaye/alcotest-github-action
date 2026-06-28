@@ -1,0 +1,5 @@
+name: Alcotest
+description: Build OCaml project and run Alcotest tests
+runs:
+  using: docker
+  image: Dockerfile
