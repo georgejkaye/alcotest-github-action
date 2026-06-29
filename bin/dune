@@ -1,0 +1,4 @@
+(executable
+ (public_name alcotest_action)
+ (name main)
+ (libraries core core_unix.command_unix alcotest_action))

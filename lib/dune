@@ -1,0 +1,2 @@
+(library
+ (name alcotest_action))
