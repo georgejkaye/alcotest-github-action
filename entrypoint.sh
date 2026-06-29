@@ -1,8 +1,9 @@
 #!/bin/sh
 
-opam init --bare --disable-sandboxing -y
-opam switch create .--jobs=8 --locked
+PROJECT_DIR=$1
 
-eval $(opam env)
+pushd $PROJECT_DIR > /dev/null
+RUNTEST_OUTPUT=$(opam exec -- dune runtest 3>&2 2>&1 1>&3)
+popd > /dev/null
 
-dune runtest
+dune exec alcotest_action "$RUNTEST_OUTPUT"
