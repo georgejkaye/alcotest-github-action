@@ -1,2 +1,10 @@
 (library
- (name alcotest_action))
+ (name lib)
+ (preprocess
+  (pps
+   ppx_string
+   ppx_deriving.show
+   ppx_deriving.make
+   ppx_compare
+   ppx_variants_conv))
+ (libraries core core_unix.sys_unix fpath))

@@ -13,14 +13,13 @@
 
 (license GPL-3.0-or-later)
 
-(documentation https://github.com/georgejkaye/alcotest-github-action/README.md)
+(documentation
+ https://github.com/georgejkaye/alcotest-github-action/README.md)
 
 (package
  (name alcotest_action)
  (synopsis "GitHub Action to process OCaml Alcotest suites")
  (description "GitHub Action to process OCaml Alcotest suites")
- (depends ocaml core core_unix)
+ (depends ocaml core core_unix fpath re ppx_deriving ppx_string yojson)
  (tags
-  ("add topics" "to describe" your project)))
-
-; See the complete stanza docs at https://dune.readthedocs.io/en/stable/reference/dune-project/index.html
+  ("alcotest" "github actions" "ci" "testing")))
