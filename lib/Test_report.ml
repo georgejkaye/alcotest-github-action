@@ -5,7 +5,9 @@ type test_run = { name : string; index : int; success : bool; log : string }
 let string_of_test_run tr =
   let success_string = if tr.success then "PASS" else "FAIL" in
   [%string
-    "%{Int.to_string tr.index}) %{tr.name}: %{success_string}\n\n%{tr.log}"]
+    "%{Int.to_string tr.index}) %{tr.name}: %{success_string}\n\n\
+     %{tr.log}\n\
+     -------------------------------\n"]
 
 type test_suite = {
   name : string;
@@ -17,7 +19,8 @@ type test_suite = {
 let lines_of_test_suite ts =
   [%string
     "%{ts.name}: %{Int.to_string ts.successes}/%{Int.to_string (ts.successes + \
-     ts.failures)}\n\n"]
+     ts.failures)} passed\n\
+     ======================================================\n"]
   :: List.map ts.tests ~f:string_of_test_run
 
 type test_report = { suites : test_suite list }
@@ -28,7 +31,6 @@ let string_of_test_report tr =
 
 let get_test_log_content th log_root =
   let log_path = Test_headline.log_path_of_test_headline th log_root in
-  print_endline [%string "accessing %{Fpath.to_string log_path}"];
   match File.read_file log_path with
   | Second msg -> msg
   | First content -> content
