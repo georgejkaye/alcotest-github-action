@@ -1,13 +1,19 @@
 open Core
 
+let replace_home_directory_in_path p =
+  String.substr_replace_all ~pattern:"~"
+    ~with_:(Sys_unix.home_directory ())
+    (Fpath.to_string p)
+
 let with_out_file path ?(binary = false) =
-  Out_channel.with_file ~binary (Fpath.to_string path)
+  Out_channel.with_file ~binary (replace_home_directory_in_path path)
 
 let with_in_file path ?(binary = false) =
-  In_channel.with_file ~binary (Fpath.to_string path)
+  In_channel.with_file ~binary (replace_home_directory_in_path path)
 
 let file_exists path =
-  Sys_unix.file_exists ~follow_symlinks:true (Fpath.to_string path)
+  Sys_unix.file_exists ~follow_symlinks:true
+    (replace_home_directory_in_path path)
 
 let read_file path =
   match file_exists path with
