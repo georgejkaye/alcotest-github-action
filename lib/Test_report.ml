@@ -1,32 +1,11 @@
 open Core
+open Yojson
 
-type test_run = { name : string; index : int; success : bool; log : string }
-
-let string_of_test_run tr =
-  let success_string = if tr.success then "PASS" else "FAIL" in
-  [%string
-    "%{Int.to_string tr.index}) %{tr.name}: %{success_string}\n\n\
-     %{tr.log}\n\
-     -------------------------------\n"]
-
-type test_suite = {
-  name : string;
-  successes : int;
-  failures : int;
-  tests : test_run list;
-}
-
-let lines_of_test_suite ts =
-  [%string
-    "%{ts.name}: %{Int.to_string ts.successes}/%{Int.to_string (ts.successes + \
-     ts.failures)} passed\n\
-     ======================================================\n"]
-  :: List.map ts.tests ~f:string_of_test_run
-
-type test_report = { suites : test_suite list }
+type t = { suites : Test_suite.t list }
 
 let string_of_test_report tr =
-  List.fold tr.suites ~init:[] ~f:(fun acc cur -> acc @ lines_of_test_suite cur)
+  List.fold tr.suites ~init:[] ~f:(fun acc cur ->
+      acc @ Test_suite.to_strings cur)
   |> String.concat ~sep:"\n"
 
 let get_test_log_content th log_root =
@@ -35,13 +14,12 @@ let get_test_log_content th log_root =
   | Second msg -> msg
   | First content -> content
 
-let test_report_of_test_headline_list (ths : Test_headline.test_headline list)
-    log_root =
+let of_test_headlines (ths : Test_headline.test_headline list) log_root =
   List.fold (List.rev ths) ~init:[] ~f:(fun acc cur ->
       let log_content = get_test_log_content cur log_root in
       let cur_test_suite = cur.test_suite in
       let cur_success = cur.success in
-      let test_run =
+      let test_run : Test_run.t =
         {
           name = cur.name;
           index = cur.index;
@@ -53,8 +31,9 @@ let test_report_of_test_headline_list (ths : Test_headline.test_headline list)
         List.fold_left acc ~init:(false, [])
           ~f:(fun (updated_ind, acc) test_suite ->
             let updated_ind, updated_test_suite =
+              let open Test_suite in
               if String.equal test_suite.name cur_test_suite then
-                ( true,
+                let suite : Test_suite.t =
                   {
                     name = test_suite.name;
                     successes =
@@ -64,7 +43,9 @@ let test_report_of_test_headline_list (ths : Test_headline.test_headline list)
                       (if cur_success then test_suite.failures
                        else test_suite.failures + 1);
                     tests = test_run :: test_suite.tests;
-                  } )
+                  }
+                in
+                (true, suite)
               else (false, test_suite)
             in
             (updated_ind, updated_test_suite :: acc))
@@ -80,3 +61,27 @@ let test_report_of_test_headline_list (ths : Test_headline.test_headline list)
         :: updated_acc)
   |> List.rev
   |> fun suites -> { suites }
+
+let to_json tr =
+  `Assoc
+    [
+      ( "suites",
+        `List
+          (List.map tr.suites ~f:(fun suite ->
+               `Assoc
+                 [
+                   ("name", `String suite.name);
+                   ("pass", `Int suite.successes);
+                   ("fail", `Int suite.failures);
+                   ( "tests",
+                     `List
+                       (List.map suite.tests ~f:(fun test ->
+                            `Assoc
+                              [
+                                ("index", `Int test.index);
+                                ("name", `String test.name);
+                                ("pass", `Bool test.success);
+                                ("output", `String test.log);
+                              ])) );
+                 ])) );
+    ]

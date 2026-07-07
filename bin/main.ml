@@ -36,10 +36,9 @@ let run input =
   | First test_log_root ->
       let test_headlines = get_test_headlines lines in
       let test_report =
-        Test_report.test_report_of_test_headline_list test_headlines
-          test_log_root
+        Test_report.of_test_headlines test_headlines test_log_root
       in
-      printf "%s" (Test_report.string_of_test_report test_report)
+      printf "%s" (Yojson.to_string (Test_report.to_json test_report))
 
 let params =
   let open Command.Param in

@@ -7,4 +7,4 @@
    ppx_deriving.make
    ppx_compare
    ppx_variants_conv))
- (libraries core core_unix.sys_unix fpath))
+ (libraries core core_unix.sys_unix fpath yojson))
