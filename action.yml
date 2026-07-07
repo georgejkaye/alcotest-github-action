@@ -1,5 +1,17 @@
 name: Alcotest
 description: Build OCaml project and run Alcotest tests
+inputs:
+  project-dir:
+    description: The path to the dune project to run tests in
+    required: false
+    default: .
+  output-path:
+    description: The path to write the test json to
+    required: false
+    default: alcotest.json
 runs:
   using: docker
   image: Dockerfile
+  args:
+    - ${{ inputs.project-dir }}
+    - ${{ inputs.output-path }}
