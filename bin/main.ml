@@ -51,6 +51,6 @@ let params =
 let command =
   Command.basic ~summary:"Process Alcotest output"
     ~readme:(fun () -> "Todo")
-    (Command.Param.map params ~f:(fun (output, input) () -> run input))
+    (Command.Param.map params ~f:(fun (output, input) () -> run output input))
 
 let () = Command_unix.run ~version:"1.0" ~build_info:"RWO" command
