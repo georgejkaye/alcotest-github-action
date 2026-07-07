@@ -27,26 +27,30 @@ let get_test_log_root lines length =
   | Ok p -> First p
   | Error (`Msg m) -> Second m
 
-let run input =
-  let lines = String.split_lines input in
-  let length = List.length lines in
-  let test_log_root_opt = get_test_log_root lines length in
-  match test_log_root_opt with
-  | Second err -> failwith err
-  | First test_log_root ->
-      let test_headlines = get_test_headlines lines in
-      let test_report =
-        Test_report.of_test_headlines test_headlines test_log_root
-      in
-      printf "%s" (Yojson.to_string (Test_report.to_json test_report))
+let run output input =
+  match Fpath.of_string output with
+  | Error (`Msg msg) -> failwith msg
+  | Ok output_path -> (
+      let lines = String.split_lines input in
+      let length = List.length lines in
+      let test_log_root_opt = get_test_log_root lines length in
+      match test_log_root_opt with
+      | Second err -> failwith err
+      | First test_log_root ->
+          let test_headlines = get_test_headlines lines in
+          let test_report =
+            Test_report.of_test_headlines test_headlines test_log_root
+          in
+          File.write_file output_path
+            (Yojson.to_string (Test_report.to_json test_report)))
 
 let params =
   let open Command.Param in
-  anon ("input" %: string)
+  both (anon ("output" %: string)) (anon ("input" %: string))
 
 let command =
   Command.basic ~summary:"Process Alcotest output"
     ~readme:(fun () -> "Todo")
-    (Command.Param.map params ~f:(fun input () -> run input))
+    (Command.Param.map params ~f:(fun (output, input) () -> run input))
 
 let () = Command_unix.run ~version:"1.0" ~build_info:"RWO" command
