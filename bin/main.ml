@@ -58,7 +58,8 @@ let params =
 let path_of_string_exn path =
   match Fpath.of_string path with
   | Ok path -> path
-  | Error (`Msg error) -> failwith error
+  | Error (`Msg error) ->
+      failwith [%string "Error when parsing %{path}: %{error}"]
 
 let command =
   Command.basic ~summary:"Process Alcotest output"
