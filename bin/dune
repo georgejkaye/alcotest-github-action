@@ -2,5 +2,5 @@
  (public_name alcotest_action)
  (name main)
  (preprocess
-  (pps ppx_string))
+  (pps ppx_string ppx_let))
  (libraries core core_unix.command_unix fpath re lib yojson))
