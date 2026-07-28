@@ -55,11 +55,17 @@ let params =
   let open Command.Param in
   both (anon ("output" %: string)) (anon ("input" %: string))
 
-let path_of_string_exn path =
+let path_of_string_arg_exn ?(arg_name = "") path =
+  let argument_name_string =
+    match arg_name with "" -> "" | name -> [%string " %{name}"]
+  in
   match Fpath.of_string path with
   | Ok path -> path
   | Error (`Msg error) ->
-      failwith [%string "Error when parsing %{path}: %{error}"]
+      failwith
+        [%string
+          "Error when parsing argument%{argument_name_string} (%{path}): \
+           %{error}"]
 
 let command =
   Command.basic ~summary:"Process Alcotest output"
@@ -73,8 +79,11 @@ let command =
      in
      fun () ->
        run
-         (path_of_string_exn dune_runtest_input_path_string)
-         (path_of_string_exn dune_runtest_root_path_string)
-         (path_of_string_exn test_summary_output_path_string))
+         (path_of_string_arg_exn ~arg_name:"dune_runtest_input_path"
+            dune_runtest_input_path_string)
+         (path_of_string_arg_exn ~arg_name:"dune_runtest_root_path"
+            dune_runtest_root_path_string)
+         (path_of_string_arg_exn ~arg_name:"test_summary_output_path"
+            test_summary_output_path_string))
 
 let () = Command_unix.run ~version:"1.0" ~build_info:"RWO" command
