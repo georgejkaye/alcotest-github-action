@@ -20,21 +20,27 @@ let get_test_headlines lines =
           { test_suite; index; name; success } :: acc)
   |> List.rev
 
-let get_test_log_root lines length =
+let get_test_log_root lines length original_root =
   let line = List.nth_exn lines (length - 2) in
   let path_string = String.slice line 22 (String.length line - 2) in
   match Fpath.of_string path_string with
-  | Ok p -> First p
+  | Ok p -> (
+      match Fpath.relativize p ~root:original_root with
+      | Some q -> First q
+      | None ->
+          Second
+            [%string
+              "Could not find %{Fpath.to_string original_root} in \
+               %{Fpath.to_string p}"])
   | Error (`Msg m) -> Second m
 
-let run output input =
-  match Fpath.of_string output with
-  | Error (`Msg msg) -> failwith msg
-  | Ok output_path -> (
-      let lines = String.split_lines input in
+let run output_path test_output_path project_root_path =
+  match File.read_file test_output_path with
+  | Second msg -> failwith msg
+  | First test_output -> (
+      let lines = String.split_lines test_output in
       let length = List.length lines in
-      let test_log_root_opt = get_test_log_root lines length in
-      match test_log_root_opt with
+      match get_test_log_root lines length project_root_path with
       | Second err -> failwith err
       | First test_log_root ->
           let test_headlines = get_test_headlines lines in
@@ -48,9 +54,21 @@ let params =
   let open Command.Param in
   both (anon ("output" %: string)) (anon ("input" %: string))
 
+let path_of_string_exn path =
+  match Fpath.of_string path with
+  | Ok path -> path
+  | Error (`Msg error) -> failwith error
+
 let command =
   Command.basic ~summary:"Process Alcotest output"
     ~readme:(fun () -> "Todo")
-    (Command.Param.map params ~f:(fun (output, input) () -> run output input))
+    (let%map_open.Command output_path_string = anon ("output path" %: string)
+     and test_output_path_string = anon ("test output path" %: string)
+     and project_root_path_string = anon ("project root path" %: string) in
+     fun () ->
+       run
+         (path_of_string_exn output_path_string)
+         (path_of_string_exn test_output_path_string)
+         (path_of_string_exn project_root_path_string))
 
 let () = Command_unix.run ~version:"1.0" ~build_info:"RWO" command
