@@ -20,7 +20,7 @@ let get_test_headlines lines =
           { test_suite; index; name; success } :: acc)
   |> List.rev
 
-let get_test_log_root lines length original_root =
+let get_test_logs_root_path lines length original_root =
   let line = List.nth_exn lines (length - 2) in
   let path_string = String.slice line 22 (String.length line - 2) in
   match Fpath.of_string path_string with
@@ -34,20 +34,21 @@ let get_test_log_root lines length original_root =
                %{Fpath.to_string p}"])
   | Error (`Msg m) -> Second m
 
-let run output_path test_output_path project_root_path =
-  match File.read_file test_output_path with
+let run dune_runtest_input_path dune_runtest_root_path test_summary_output_path
+    =
+  match File.read_file dune_runtest_input_path with
   | Second msg -> failwith msg
   | First test_output -> (
       let lines = String.split_lines test_output in
       let length = List.length lines in
-      match get_test_log_root lines length project_root_path with
+      match get_test_logs_root_path lines length dune_runtest_root_path with
       | Second err -> failwith err
       | First test_log_root ->
           let test_headlines = get_test_headlines lines in
           let test_report =
             Test_report.of_test_headlines test_headlines test_log_root
           in
-          File.write_file output_path
+          File.write_file test_summary_output_path
             (Yojson.to_string (Test_report.to_json test_report)))
 
 let params =
@@ -62,13 +63,17 @@ let path_of_string_exn path =
 let command =
   Command.basic ~summary:"Process Alcotest output"
     ~readme:(fun () -> "Todo")
-    (let%map_open.Command output_path_string = anon ("output path" %: string)
-     and test_output_path_string = anon ("test output path" %: string)
-     and project_root_path_string = anon ("project root path" %: string) in
+    (let%map_open.Command dune_runtest_input_path_string =
+       anon ("dune_runtest_input_path" %: string)
+     and dune_runtest_root_path_string =
+       anon ("dune_runtest_root_path" %: string)
+     and test_summary_output_path_string =
+       anon ("test_summary_output_path" %: string)
+     in
      fun () ->
        run
-         (path_of_string_exn output_path_string)
-         (path_of_string_exn test_output_path_string)
-         (path_of_string_exn project_root_path_string))
+         (path_of_string_exn dune_runtest_input_path_string)
+         (path_of_string_exn dune_runtest_root_path_string)
+         (path_of_string_exn test_summary_output_path_string))
 
 let () = Command_unix.run ~version:"1.0" ~build_info:"RWO" command
