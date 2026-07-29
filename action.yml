@@ -14,7 +14,7 @@ inputs:
     default: alcotest.json
 runs:
   using: docker
-  image: docker://georgejkaye/alcotest-github-action:v0.3.0
+  image: docker://georgejkaye/alcotest-github-action:latest
   args:
     - ${{ inputs.dune-runtest-input-path }}
     - ${{ inputs.dune-runtest-root-path }}
