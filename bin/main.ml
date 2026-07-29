@@ -86,4 +86,4 @@ let command =
          (path_of_string_arg_exn ~arg_name:"test_summary_output_path"
             test_summary_output_path_string))
 
-let () = Command_unix.run ~version:"1.0" ~build_info:"RWO" command
+let () = Command_unix.run ~version:"1.0" command
