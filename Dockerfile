@@ -17,7 +17,7 @@ FROM debian:12 AS runner
 
 WORKDIR /action
 
-RUN mkdir /github/workspace
+RUN mkdir -p /github/workspace
 
 COPY --from=builder /action/_build/default/bin/main.exe /action/main.exe
 
