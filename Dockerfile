@@ -1,4 +1,4 @@
-FROM ocaml/opam:debian-ocaml-5.5
+FROM ocaml/opam:debian-12-ocaml-5.5 AS builder
 
 WORKDIR /action
 
@@ -12,6 +12,14 @@ COPY bin bin
 COPY lib lib
 
 RUN eval $(opam env); dune build
+
+FROM debian:12 AS runner
+
+WORKDIR /action
+
+RUN mkdir /github/workspace
+
+COPY --from=builder /action/_build/default/bin/main.exe /action/main.exe
 
 COPY entrypoint.sh entrypoint.sh
 
