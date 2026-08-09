@@ -3,4 +3,4 @@
  (name main)
  (preprocess
   (pps ppx_string ppx_let))
- (libraries core core_unix core_unix.command_unix fpath re lib yojson))
+ (libraries core core_unix.command_unix fpath lib))
