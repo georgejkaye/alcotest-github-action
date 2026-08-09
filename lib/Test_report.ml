@@ -1,7 +1,7 @@
 open Core
 open Yojson
 
-type t = { suites : Test_suite.t list }
+type t = { name : string; id : string; suites : Test_suite.t list }
 
 let string_of_test_report tr =
   List.fold tr.suites ~init:[] ~f:(fun acc cur ->
@@ -14,12 +14,12 @@ let get_test_log_content th log_root =
   | Second msg -> msg
   | First content -> content
 
-let of_test_headlines (ths : Test_headline.test_headline list) log_root =
+let of_test_headlines ~name ~id (ths : Test_headline.t list) log_root =
   List.fold (List.rev ths) ~init:[] ~f:(fun acc cur ->
       let log_content = get_test_log_content cur log_root in
       let cur_test_suite = cur.test_suite in
       let cur_success = cur.success in
-      let test_run : Test_run.t =
+      let test_case : Test_case.t =
         {
           name = cur.name;
           index = cur.index;
@@ -42,7 +42,7 @@ let of_test_headlines (ths : Test_headline.test_headline list) log_root =
                     failures =
                       (if cur_success then test_suite.failures
                        else test_suite.failures + 1);
-                    tests = test_run :: test_suite.tests;
+                    tests = test_case :: test_suite.tests;
                   }
                 in
                 (true, suite)
@@ -56,15 +56,17 @@ let of_test_headlines (ths : Test_headline.test_headline list) log_root =
           name = cur.test_suite;
           successes = (if cur_success then 1 else 0);
           failures = (if cur_success then 0 else 1);
-          tests = [ test_run ];
+          tests = [ test_case ];
         }
         :: updated_acc)
   |> List.rev
-  |> fun suites -> { suites }
+  |> fun suites -> { name; id; suites }
 
 let to_json tr =
   `Assoc
     [
+      ("name", `String tr.name);
+      ("id", `String tr.id);
       ( "suites",
         `List
           (List.map tr.suites ~f:(fun suite ->
