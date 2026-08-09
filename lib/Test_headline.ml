@@ -1,9 +1,4 @@
-type test_headline = {
-  test_suite : string;
-  index : int;
-  name : string;
-  success : bool;
-}
+type t = { test_suite : string; index : int; name : string; success : bool }
 [@@deriving show, make]
 
 let string_of_test_headline th =
