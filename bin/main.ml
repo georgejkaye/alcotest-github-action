@@ -2,54 +2,28 @@ open Core
 open Lib
 open Fpath
 
-let test_headline_regex =
-  Re.Perl.re "(?:  \\[(OK)\\]  |> \\[(FAIL)\\])        (.*?)([0-9]+)   (.*)\\."
-  |> Re.compile
-
-let get_test_headlines lines =
-  List.fold_left lines ~init:[] ~f:(fun acc cur ->
-      match Re.exec_opt test_headline_regex cur with
-      | None -> acc
-      | Some m ->
-          let test_suite = String.strip (Re.Group.get m 3) in
-          let index = Int.of_string (Re.Group.get m 4) in
-          let name = Re.Group.get m 5 in
-          let success =
-            match Re.Group.get_opt m 1 with Some _ -> true | _ -> false
-          in
-          let open Test_headline in
-          { test_suite; index; name; success } :: acc)
-  |> List.rev
-
-let get_test_logs_root_path lines length =
-  let line = List.nth_exn lines (length - 2) in
-  let path_string = String.slice line 22 (String.length line - 2) in
-  match Fpath.of_string path_string with
-  | Ok p ->
-      let test_report_name = Fpath.basename p in
-      let test_build_dir =
-        Fpath.v "." / "_build" / "default" / "test" / "_build" / "_tests"
-      in
-      let symlink_target = File.readlink (test_build_dir / test_report_name) in
-      let test_run_id = Fpath.basename symlink_target in
-      First (test_build_dir / test_run_id)
-  | Error (`Msg m) -> Second m
-
 let run dune_runtest_input_path test_summary_output_path =
   match File.read_file dune_runtest_input_path with
   | Second msg -> failwith msg
   | First test_output -> (
-      let lines = String.split_lines test_output in
-      let length = List.length lines in
-      match get_test_logs_root_path lines length with
-      | Second err -> failwith err
-      | First test_log_root ->
-          let test_headlines = get_test_headlines lines in
-          let test_report =
-            Test_report.of_test_headlines test_headlines test_log_root
+      match Test_run.get_id test_output with
+      | Second msg -> failwith msg
+      | First test_run_id -> (
+          let test_run_name =
+            match Test_run.get_name test_output with
+            | First name -> name
+            | Second _ -> "Test run"
           in
-          File.write_file test_summary_output_path
-            (Yojson.to_string (Test_report.to_json test_report)))
+          match Test_run.get_test_logs_root_path test_run_id with
+          | Second err -> failwith err
+          | First test_log_root ->
+              let test_headlines = Test_run.get_test_headlines test_output in
+              let test_report =
+                Test_report.of_test_headlines ~name:test_run_name
+                  ~id:test_run_id test_headlines test_log_root
+              in
+              File.write_file test_summary_output_path
+                (Yojson.to_string (Test_report.to_json test_report))))
 
 let params =
   let open Command.Param in
