@@ -1,8 +1,5 @@
 open Core
 
-let readlink p = p |> Fpath.to_string |> Core_unix.readlink |> Fpath.v
-let normalize = Fpath.normalize
-
 let with_out_file path ?(binary = false) =
   Out_channel.with_file ~binary (Fpath.to_string path)
 
