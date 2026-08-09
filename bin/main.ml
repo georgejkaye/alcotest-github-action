@@ -1,5 +1,6 @@
 open Core
 open Lib
+open Fpath
 
 let test_headline_regex =
   Re.Perl.re "(?:  \\[(OK)\\]  |> \\[(FAIL)\\])        (.*?)([0-9]+)   (.*)\\."
@@ -20,28 +21,27 @@ let get_test_headlines lines =
           { test_suite; index; name; success } :: acc)
   |> List.rev
 
-let get_test_logs_root_path lines length original_root =
+let get_test_logs_root_path lines length =
   let line = List.nth_exn lines (length - 2) in
   let path_string = String.slice line 22 (String.length line - 2) in
   match Fpath.of_string path_string with
-  | Ok p -> (
-      match Fpath.relativize p ~root:original_root with
-      | Some q -> First q
-      | None ->
-          Second
-            [%string
-              "Could not find %{Fpath.to_string original_root} in \
-               %{Fpath.to_string p}"])
+  | Ok p ->
+      let test_report_name = Fpath.basename p in
+      let test_build_dir =
+        Fpath.v "." / "_build" / "default" / "test" / "_build" / "_tests"
+      in
+      let symlink_target = File.readlink (test_build_dir / test_report_name) in
+      let test_run_id = Fpath.basename symlink_target in
+      First (test_build_dir / test_run_id)
   | Error (`Msg m) -> Second m
 
-let run dune_runtest_input_path dune_runtest_root_path test_summary_output_path
-    =
+let run dune_runtest_input_path test_summary_output_path =
   match File.read_file dune_runtest_input_path with
   | Second msg -> failwith msg
   | First test_output -> (
       let lines = String.split_lines test_output in
       let length = List.length lines in
-      match get_test_logs_root_path lines length dune_runtest_root_path with
+      match get_test_logs_root_path lines length with
       | Second err -> failwith err
       | First test_log_root ->
           let test_headlines = get_test_headlines lines in
@@ -72,8 +72,6 @@ let command =
     ~readme:(fun () -> "Todo")
     (let%map_open.Command dune_runtest_input_path_string =
        anon ("dune_runtest_input_path" %: string)
-     and dune_runtest_root_path_string =
-       anon ("dune_runtest_root_path" %: string)
      and test_summary_output_path_string =
        anon ("test_summary_output_path" %: string)
      in
@@ -81,8 +79,6 @@ let command =
        run
          (path_of_string_arg_exn ~arg_name:"dune_runtest_input_path"
             dune_runtest_input_path_string)
-         (path_of_string_arg_exn ~arg_name:"dune_runtest_root_path"
-            dune_runtest_root_path_string)
          (path_of_string_arg_exn ~arg_name:"test_summary_output_path"
             test_summary_output_path_string))
 
