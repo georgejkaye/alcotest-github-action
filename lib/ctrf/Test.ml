@@ -1,17 +1,25 @@
 module Attachment = struct
-  module Make (AttachmentExtras : Object.T) = struct
+  module type Extras = sig
+    module Attachment : Object.T
+  end
+
+  module Make (Extras : Extras) = struct
     type t = {
       name : string;
       contentType : string;
       path : string;
-      extra : AttachmentExtras.t option;
+      extra : Extras.Attachment.t option;
     }
     [@@deriving show, yojson]
   end
 end
 
 module TestInsight = struct
-  module Make (TestInsightExtras : Object.T) = struct
+  module type Extras = sig
+    module TestInsight : Object.T
+  end
+
+  module Make (Extras : Extras) = struct
     type t = {
       passRate : MetricDelta.t option;
       failRate : MetricDelta.t option;
@@ -19,7 +27,7 @@ module TestInsight = struct
       averageTestDuration : MetricDelta.t option;
       p95testDuration : MetricDelta.t option;
       executedInRuns : int option;
-      extra : TestInsightExtras.t option;
+      extra : Extras.TestInsight.t option;
     }
     [@@deriving show, yojson]
   end
@@ -36,9 +44,13 @@ module Status = struct
 end
 
 module RetryAttempt = struct
-  module Make (AttachmentExtras : Object.T) (RetryAttemptExtras : Object.T) =
-  struct
-    module Attachment = Attachment.Make (AttachmentExtras)
+  module type Extras = sig
+    module Attachment : Attachment.Extras
+    module RetryAttempt : Object.T
+  end
+
+  module Make (Extras : Extras) = struct
+    module Attachment = Attachment.Make (Extras.Attachment)
 
     type t = {
       attempt : int;
@@ -53,35 +65,37 @@ module RetryAttempt = struct
       start : int option;
       stop : int option;
       attachment : Attachment.t list option;
-      extra : RetryAttemptExtras.t option;
+      extra : Extras.RetryAttempt.t option;
     }
     [@@deriving show, yojson]
   end
 end
 
 module Step = struct
-  module Make (StepExtras : Object.T) = struct
-    type t = { name : string; status : Status.t; extra : StepExtras.t }
+  module type Extras = sig
+    module Step : Object.T
+  end
+
+  module Make (Extras : Extras) = struct
+    type t = { name : string; status : Status.t; extra : Extras.Step.t }
     [@@deriving show, yojson]
   end
 end
 
-module Make
-    (Labels : Object.T)
-    (Parameters : Object.T)
-    (RetryAttemptExtras : Object.T)
-    (StepExtras : Object.T)
-    (AttachmentExtras : Object.T)
-    (TestInsightExtras : Object.T)
-    (TestExtras : Object.T) =
+module type Extras = sig
+  module RetryAttempt : RetryAttempt.Extras
+  module Step : Step.Extras
+  module Attachment : Attachment.Extras
+  module TestInsight : TestInsight.Extras
+  module Test : Object.T
+end
+
+module Make (Extras : Extras) (Labels : Object.T) (Parameters : Object.T) =
 struct
-  module Step = Step.Make (StepExtras)
-  module Attachment = Attachment.Make (AttachmentExtras)
-
-  module RetryAttempt =
-    RetryAttempt.Make (AttachmentExtras) (RetryAttemptExtras)
-
-  module TestInsight = TestInsight.Make (TestInsightExtras)
+  module Step = Step.Make (Extras.Step)
+  module Attachment = Attachment.Make (Extras.Attachment)
+  module RetryAttempt = RetryAttempt.Make (Extras.RetryAttempt)
+  module TestInsight = TestInsight.Make (Extras.TestInsight)
 
   type t = {
     name : string;
@@ -114,7 +128,7 @@ struct
     attachments : Attachment.t list option;
     retryAttempt : RetryAttempt.t option;
     insights : TestInsight.t list option;
-    extra : TestExtras.t option;
+    extra : Extras.Test.t option;
   }
   [@@deriving show, yojson]
 end

@@ -1,4 +1,8 @@
-module Make (SummaryExtras : Object.T) = struct
+module type Extras = sig
+  module Summary : Object.T
+end
+
+module Make (Extras : Extras) = struct
   type t = {
     tests : int;
     passed : int;
@@ -11,7 +15,7 @@ module Make (SummaryExtras : Object.T) = struct
     start : int;
     stop : int;
     duration : int option;
-    extra : SummaryExtras.t option;
+    extra : Extras.Summary.t option;
   }
   [@@deriving show, yojson]
 end

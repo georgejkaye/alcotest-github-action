@@ -1,4 +1,8 @@
-module Make (EnvironmentExtras : Object.T) = struct
+module type Extras = sig
+  module Environment : Object.T
+end
+
+module Make (Extras : Extras) = struct
   type t = {
     reportName : string option;
     appName : string option;
@@ -15,7 +19,7 @@ module Make (EnvironmentExtras : Object.T) = struct
     osRelease : string option;
     testEnvironment : string option;
     healthy : bool option;
-    extra : EnvironmentExtras.t option;
+    extra : Extras.Environment.t option;
   }
   [@@deriving show, yojson]
 end

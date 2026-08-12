@@ -1,5 +1,9 @@
 module RunInsight = struct
-  module Make (RunInsightExtras : Object.T) = struct
+  module type Extras = sig
+    module RunInsight : Object.T
+  end
+
+  module Make (Extras : Extras) = struct
     type t = {
       passRate : MetricDelta.t option;
       failRate : MetricDelta.t option;
@@ -8,38 +12,27 @@ module RunInsight = struct
       p95RunDuration : MetricDelta.t option;
       averageTestDuration : MetricDelta.t option;
       runsAnalyzed : int option;
-      extra : RunInsightExtras.t option;
+      extra : Extras.RunInsight.t option;
     }
     [@@deriving show, yojson]
   end
 end
 
-module Make
-    (ToolExtras : Object.T)
-    (SummaryExtras : Object.T)
-    (TestLabels : Object.T)
-    (TestParameters : Object.T)
-    (RetryAttemptExtras : Object.T)
-    (EnvironmentExtras : Object.T)
-    (StepExtras : Object.T)
-    (TestInsightExtras : Object.T)
-    (TestExtras : Object.T)
-    (ResultsExtras : Object.T)
-    (RunInsightExtras : Object.T)
-    (BaselineExtras : Object.T)
-    (RootExtras : Object.T) =
-struct
-  module Results =
-    Results.Make (ToolExtras) (SummaryExtras) (TestLabels) (TestParameters)
-      (RetryAttemptExtras)
-      (EnvironmentExtras)
-      (StepExtras)
-      (TestInsightExtras)
-      (TestExtras)
-      (ResultsExtras)
+module type Extras = sig
+  module Results : Results.Extras
+  module RunInsight : RunInsight.Extras
+  module Baseline : Baseline.Extras
+  module Root : Object.T
+end
 
-  module RunInsight = RunInsight.Make (RunInsightExtras)
-  module Baseline = Baseline.Make (BaselineExtras)
+module Make
+    (Extras : Extras)
+    (TestLabels : Object.T)
+    (TestParameters : Object.T) =
+struct
+  module Results = Results.Make (Extras.Results) (TestLabels) (TestParameters)
+  module RunInsight = RunInsight.Make (Extras.RunInsight)
+  module Baseline = Baseline.Make (Extras.Baseline)
 
   type t = {
     reportFormat : string;
@@ -50,7 +43,7 @@ struct
     results : Results.t option;
     insights : RunInsight.t option;
     baseline : Baseline.t option;
-    extra : RootExtras.t option;
+    extra : Extras.Root.t option;
   }
   [@@deriving show, yojson]
 end

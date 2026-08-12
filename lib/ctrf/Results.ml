@@ -1,31 +1,27 @@
-module Make
-    (ToolExtras : Object.T)
-    (SummaryExtras : Object.T)
-    (TestLabels : Object.T)
-    (TestParameters : Object.T)
-    (RetryAttemptExtras : Object.T)
-    (EnvironmentExtras : Object.T)
-    (StepExtras : Object.T)
-    (TestInsightExtras : Object.T)
-    (TestExtras : Object.T)
-    (ResultsExtras : Object.T) =
-struct
-  module Test =
-    Test.Make (TestLabels) (TestParameters) (RetryAttemptExtras) (StepExtras)
-      (RetryAttemptExtras)
-      (TestInsightExtras)
-      (TestExtras)
+module type Extras = sig
+  module Tool : Tool.Extras
+  module Summary : Summary.Extras
+  module Test : Test.Extras
+  module Environment : Environment.Extras
+  module Results : Object.T
+end
 
-  module Tool = Tool.Make (ToolExtras)
-  module Environment = Environment.Make (EnvironmentExtras)
-  module Summary = Summary.Make (SummaryExtras)
+module Make
+    (Extras : Extras)
+    (TestLabels : Object.T)
+    (TestParameters : Object.T) =
+struct
+  module Tool = Tool.Make (Extras.Tool)
+  module Summary = Summary.Make (Extras.Summary)
+  module Test = Test.Make (Extras.Test) (TestLabels) (TestParameters)
+  module Environment = Environment.Make (Extras.Environment)
 
   type t = {
     tool : Tool.t;
     summary : Summary.t;
     tests : Test.t list;
     environment : Environment.t option;
-    extra : ResultsExtras.t option;
+    extra : Extras.Results.t option;
   }
   [@@deriving show, yojson]
 end
