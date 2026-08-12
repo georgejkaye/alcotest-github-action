@@ -2,6 +2,10 @@ module type Extras = sig
   module Summary : Object.T
 end
 
+module EmptyExtras = struct
+  module Summary = Object.Empty
+end
+
 module Make (Extras : Extras) = struct
   type t = {
     tests : int;
@@ -19,3 +23,5 @@ module Make (Extras : Extras) = struct
   }
   [@@deriving show, yojson]
 end
+
+module MakeWithNoExtras = Make (EmptyExtras)

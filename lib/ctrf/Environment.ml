@@ -2,6 +2,10 @@ module type Extras = sig
   module Environment : Object.T
 end
 
+module EmptyExtras = struct
+  module Environment = Object.Empty
+end
+
 module Make (Extras : Extras) = struct
   type t = {
     reportName : string option;
@@ -23,3 +27,5 @@ module Make (Extras : Extras) = struct
   }
   [@@deriving show, yojson]
 end
+
+module MakeWithNoExtras = Make (EmptyExtras)

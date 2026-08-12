@@ -3,6 +3,10 @@ module Attachment = struct
     module Attachment : Object.T
   end
 
+  module EmptyExtras = struct
+    module Attachment = Object.Empty
+  end
+
   module Make (Extras : Extras) = struct
     type t = {
       name : string;
@@ -17,6 +21,10 @@ end
 module TestInsight = struct
   module type Extras = sig
     module TestInsight : Object.T
+  end
+
+  module EmptyExtras = struct
+    module TestInsight = Object.Empty
   end
 
   module Make (Extras : Extras) = struct
@@ -49,6 +57,11 @@ module RetryAttempt = struct
     module RetryAttempt : Object.T
   end
 
+  module EmptyExtras = struct
+    module Attachment = Attachment.EmptyExtras
+    module RetryAttempt = Object.Empty
+  end
+
   module Make (Extras : Extras) = struct
     module Attachment = Attachment.Make (Extras.Attachment)
 
@@ -76,6 +89,10 @@ module Step = struct
     module Step : Object.T
   end
 
+  module EmptyExtras = struct
+    module Step = Object.Empty
+  end
+
   module Make (Extras : Extras) = struct
     type t = { name : string; status : Status.t; extra : Extras.Step.t }
     [@@deriving show, yojson]
@@ -88,6 +105,14 @@ module type Extras = sig
   module Attachment : Attachment.Extras
   module TestInsight : TestInsight.Extras
   module Test : Object.T
+end
+
+module EmptyExtras = struct
+  module RetryAttempt = RetryAttempt.EmptyExtras
+  module Step = Step.EmptyExtras
+  module Attachment = Attachment.EmptyExtras
+  module TestInsight = TestInsight.EmptyExtras
+  module Test = Object.Empty
 end
 
 module Make (Extras : Extras) (Labels : Object.T) (Parameters : Object.T) =
@@ -132,3 +157,5 @@ struct
   }
   [@@deriving show, yojson]
 end
+
+module MakeWithNoExtras = Make (EmptyExtras)

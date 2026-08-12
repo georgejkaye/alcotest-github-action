@@ -2,6 +2,10 @@ module type Extras = sig
   module Baseline : Object.T
 end
 
+module EmptyExtras = struct
+  module Baseline = Object.Empty
+end
+
 module Make (Extras : Extras) = struct
   type t = {
     reportId : string;
@@ -15,3 +19,5 @@ module Make (Extras : Extras) = struct
   }
   [@@deriving show, yojson]
 end
+
+module MakeWithNoExtras = Make (EmptyExtras)

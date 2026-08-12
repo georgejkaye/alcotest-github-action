@@ -3,6 +3,10 @@ module RunInsight = struct
     module RunInsight : Object.T
   end
 
+  module EmptyExtras = struct
+    module RunInsight = Object.Empty
+  end
+
   module Make (Extras : Extras) = struct
     type t = {
       passRate : MetricDelta.t option;
@@ -16,6 +20,8 @@ module RunInsight = struct
     }
     [@@deriving show, yojson]
   end
+
+  module MakeWithNoExtras = Make (EmptyExtras)
 end
 
 module type Extras = sig
@@ -23,6 +29,13 @@ module type Extras = sig
   module RunInsight : RunInsight.Extras
   module Baseline : Baseline.Extras
   module Root : Object.T
+end
+
+module EmptyExtras = struct
+  module Results = Results.EmptyExtras
+  module RunInsight = RunInsight.EmptyExtras
+  module Baseline = Baseline.EmptyExtras
+  module Root = Object.Empty
 end
 
 module Make
@@ -47,3 +60,5 @@ struct
   }
   [@@deriving show, yojson]
 end
+
+module MakeWithNoExtras = Make (EmptyExtras)

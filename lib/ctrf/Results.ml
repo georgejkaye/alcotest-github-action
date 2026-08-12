@@ -6,6 +6,14 @@ module type Extras = sig
   module Results : Object.T
 end
 
+module EmptyExtras = struct
+  module Tool = Tool.EmptyExtras
+  module Summary = Summary.EmptyExtras
+  module Test = Test.EmptyExtras
+  module Environment = Environment.EmptyExtras
+  module Results = Object.Empty
+end
+
 module Make
     (Extras : Extras)
     (TestLabels : Object.T)
@@ -25,3 +33,5 @@ struct
   }
   [@@deriving show, yojson]
 end
+
+module MakeWithNoExtras = Make (EmptyExtras)
