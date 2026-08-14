@@ -18,7 +18,7 @@ module RunInsight = struct
       runsAnalyzed : int option;
       extra : Extras.RunInsight.t option;
     }
-    [@@deriving show, yojson]
+    [@@deriving make, show, yojson]
   end
 
   module MakeWithNoExtras = Make (EmptyExtras)
@@ -58,7 +58,7 @@ struct
     baseline : Baseline.t option;
     extra : Extras.Root.t option;
   }
-  [@@deriving show, yojson]
+  [@@deriving make, show, yojson]
 end
 
 module MakeWithNoExtras = Make (EmptyExtras)

@@ -31,7 +31,7 @@ struct
     environment : Environment.t option;
     extra : Extras.Results.t option;
   }
-  [@@deriving show, yojson]
+  [@@deriving make, show, yojson]
 end
 
 module MakeWithNoExtras = Make (EmptyExtras)

@@ -12,7 +12,7 @@ module Make (Extras : Extras) = struct
     version : string option;
     extra : Extras.Tool.t option;
   }
-  [@@deriving show, yojson]
+  [@@deriving make, show, yojson]
 end
 
 module MakeWithNoExtras = Make (EmptyExtras)

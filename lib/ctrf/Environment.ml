@@ -25,7 +25,7 @@ module Make (Extras : Extras) = struct
     healthy : bool option;
     extra : Extras.Environment.t option;
   }
-  [@@deriving show, yojson]
+  [@@deriving make, show, yojson]
 end
 
 module MakeWithNoExtras = Make (EmptyExtras)

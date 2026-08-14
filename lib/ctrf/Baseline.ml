@@ -17,7 +17,7 @@ module Make (Extras : Extras) = struct
     commit : string option;
     extra : Extras.Baseline.t option;
   }
-  [@@deriving show, yojson]
+  [@@deriving make, show, yojson]
 end
 
 module MakeWithNoExtras = Make (EmptyExtras)

@@ -14,7 +14,7 @@ module Attachment = struct
       path : string;
       extra : Extras.Attachment.t option;
     }
-    [@@deriving show, yojson]
+    [@@deriving make, show, yojson]
   end
 end
 
@@ -37,7 +37,7 @@ module TestInsight = struct
       executedInRuns : int option;
       extra : Extras.TestInsight.t option;
     }
-    [@@deriving show, yojson]
+    [@@deriving make, show, yojson]
   end
 end
 
@@ -80,7 +80,7 @@ module RetryAttempt = struct
       attachment : Attachment.t list option;
       extra : Extras.RetryAttempt.t option;
     }
-    [@@deriving show, yojson]
+    [@@deriving make, show, yojson]
   end
 end
 
@@ -95,7 +95,7 @@ module Step = struct
 
   module Make (Extras : Extras) = struct
     type t = { name : string; status : Status.t; extra : Extras.Step.t }
-    [@@deriving show, yojson]
+    [@@deriving make, show, yojson]
   end
 end
 
@@ -155,7 +155,7 @@ struct
     insights : TestInsight.t list option;
     extra : Extras.Test.t option;
   }
-  [@@deriving show, yojson]
+  [@@deriving make, show, yojson]
 end
 
 module MakeWithNoExtras = Make (EmptyExtras)

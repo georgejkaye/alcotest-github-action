@@ -21,7 +21,7 @@ module Make (Extras : Extras) = struct
     duration : int option;
     extra : Extras.Summary.t option;
   }
-  [@@deriving show, yojson]
+  [@@deriving make, show, yojson]
 end
 
 module MakeWithNoExtras = Make (EmptyExtras)
