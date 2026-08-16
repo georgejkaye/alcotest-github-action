@@ -1,29 +1,36 @@
 open Core
 open Lib
 open Fpath
+module Root = Ctrf.Root.MakeWithNoExtras (Ctrf.Object.Empty) (Ctrf.Object.Empty)
 
-let run dune_runtest_input_path test_summary_output_path =
-  match File.read_file dune_runtest_input_path with
+let run ~alcotest_input_path ~ctrf_output_path ~start_timestamp ~end_timestamp
+    ~alcotest_version =
+  match File.read_file alcotest_input_path with
   | Second msg -> failwith msg
   | First test_output -> (
-      match Test_run.get_id test_output with
+      match Alcotest.Output.get_id test_output with
       | Second msg -> failwith msg
       | First test_run_id -> (
           let test_run_name =
-            match Test_run.get_name test_output with
+            match Alcotest.Output.get_name test_output with
             | First name -> name
             | Second _ -> "Test run"
           in
-          match Test_run.get_test_logs_root_path test_run_id with
+          match Alcotest.Paths.get_test_logs_root_path test_run_id with
           | Second err -> failwith err
           | First test_log_root ->
-              let test_headlines = Test_run.get_test_headlines test_output in
-              let test_report =
-                Test_report.of_test_headlines ~name:test_run_name
-                  ~id:test_run_id test_headlines test_log_root
+              let test_headlines =
+                Alcotest.Output.get_test_headlines test_output
               in
-              File.write_file test_summary_output_path
-                (Yojson.to_string (Test_report.to_json test_report))))
+              let test_report =
+                Alcotest.Report.of_test_headlines ~name:test_run_name
+                  ~id:test_run_id ~start_timestamp ~end_timestamp
+                  ~version:alcotest_version test_headlines test_log_root
+              in
+              File.write_file ctrf_output_path
+                (Alcotest.Report.to_ctrf test_report
+                |> Root.to_yojson
+                |> Yojson.Safe.to_string)))
 
 let params =
   let open Command.Param in
@@ -44,16 +51,26 @@ let path_of_string_arg_exn ?(arg_name = "") path =
 let command =
   Command.basic ~summary:"Process Alcotest output"
     ~readme:(fun () -> "Todo")
-    (let%map_open.Command dune_runtest_input_path_string =
-       anon ("dune_runtest_input_path" %: string)
-     and test_summary_output_path_string =
-       anon ("test_summary_output_path" %: string)
-     in
+    (let%map_open.Command alcotest_input_path_string =
+       anon ("alcotest_input_path" %: string)
+     and ctrf_output_path = anon ("test_summary_output_path" %: string)
+     and start_timestamp = anon ("start_timestamp" %: string)
+     and end_timestamp = anon ("end_timestamp" %: string)
+     and alcotest_version = anon ("alcotest_version" %: string) in
      fun () ->
        run
-         (path_of_string_arg_exn ~arg_name:"dune_runtest_input_path"
-            dune_runtest_input_path_string)
-         (path_of_string_arg_exn ~arg_name:"test_summary_output_path"
-            test_summary_output_path_string))
+         ~alcotest_input_path:
+           (path_of_string_arg_exn ~arg_name:"alcotest_input_path"
+              alcotest_input_path_string)
+         ~ctrf_output_path:
+           (path_of_string_arg_exn ~arg_name:"test_summary_output_path"
+              ctrf_output_path)
+         ~start_timestamp:
+           (Time_float_unix.parse start_timestamp ~fmt:"%Y-%m-%dT%H:%M:%S"
+              ~zone:Time_float_unix.Zone.utc)
+         ~end_timestamp:
+           (Time_float_unix.parse end_timestamp ~fmt:"%Y-%m-%dT%H:%M:%S"
+              ~zone:Time_float_unix.Zone.utc)
+         ~alcotest_version)
 
 let () = Command_unix.run ~version:"1.0" command
