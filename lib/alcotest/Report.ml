@@ -83,7 +83,7 @@ let to_ctrf_tests report =
 let to_ctrf_environment report =
   let get_workflow_url =
     let server_url = Sys.getenv_exn "GITHUB_SERVER_URL" in
-    let repo = "GITHUB_REPOSITORY" in
+    let repo = Sys.getenv_exn "GITHUB_REPOSITORY" in
     let run_id = Sys.getenv_exn "GITHUB_RUN_ID" in
     [%string "%{server_url}/%{repo}/actions/runs/%{run_id}"]
   in
