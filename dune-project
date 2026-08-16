@@ -20,6 +20,6 @@
  (name alcotest_action)
  (synopsis "GitHub Action to process OCaml Alcotest suites")
  (description "GitHub Action to process OCaml Alcotest suites")
- (depends ocaml core core_unix fpath re ppx_deriving ppx_string yojson)
+ (depends ocaml core core_unix fpath re ppx_deriving ppx_string uuidm yojson)
  (tags
   ("alcotest" "github actions" "ci" "testing")))
