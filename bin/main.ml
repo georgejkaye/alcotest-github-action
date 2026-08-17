@@ -1,6 +1,7 @@
 open Core
 open Lib
 open Fpath
+open! Util.Json
 module Root = Ctrf.Root.MakeWithNoExtras (Ctrf.Object.Empty) (Ctrf.Object.Empty)
 
 let run ~alcotest_input_path ~ctrf_output_path ~start_timestamp ~end_timestamp
@@ -30,6 +31,7 @@ let run ~alcotest_input_path ~ctrf_output_path ~start_timestamp ~end_timestamp
               File.write_file ctrf_output_path
                 (Alcotest.Report.to_ctrf test_report
                 |> Root.to_yojson
+                |> Yojson.remove_nulls
                 |> Yojson.Safe.to_string)))
 
 let params =
