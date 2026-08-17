@@ -19,7 +19,7 @@ inputs:
     required: false
 runs:
   using: docker
-  image: docker://georgejkaye/alcotest-github-action:v1.0.0
+  image: docker://georgejkaye/alcotest-github-action:v2.0.0
   args:
     - ${{ inputs.alcotest-input-path }}
     - ${{ inputs.ctrf-output-path }}
