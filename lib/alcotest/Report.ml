@@ -95,7 +95,7 @@ let to_ctrf_environment report =
     ~buildUrl:get_workflow_url
     ~commit:(Sys.getenv_exn "GITHUB_SHA")
     ~branchName:(Sys.getenv_exn "GITHUB_REF")
-    ~osPlatform:(Sys.getenv_exn "GITHUB_RUNNER_OS")
+    ~osPlatform:(Sys.getenv_exn "RUNNER_OS")
     ()
 
 let to_ctrf_results report =
