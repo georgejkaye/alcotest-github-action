@@ -2,6 +2,7 @@ open Core
 open Lib
 open Fpath
 open! Util.Json
+open! Util.Datetime
 module Root = Ctrf.Root.MakeWithNoExtras (Ctrf.Object.Empty) (Ctrf.Object.Empty)
 
 let run ~alcotest_input_path ~ctrf_output_path ~start_timestamp ~end_timestamp
@@ -38,10 +39,12 @@ let params =
   let open Command.Param in
   both (anon ("output" %: string)) (anon ("input" %: string))
 
+let get_argument_name_string = function
+  | "" -> ""
+  | name -> [%string " %{name}"]
+
 let path_of_string_arg_exn ?(arg_name = "") path =
-  let argument_name_string =
-    match arg_name with "" -> "" | name -> [%string " %{name}"]
-  in
+  let argument_name_string = get_argument_name_string arg_name in
   match Fpath.of_string path with
   | Ok path -> path
   | Error (`Msg error) ->
@@ -49,6 +52,16 @@ let path_of_string_arg_exn ?(arg_name = "") path =
         [%string
           "Error when parsing argument%{argument_name_string} (%{path}): \
            %{error}"]
+
+let datetime_of_string_arg_exn ?(arg_name = "") arg =
+  let argument_name_string = get_argument_name_string arg_name in
+  match Time_float_unix.parse_result arg with
+  | Ok datetime -> datetime
+  | Error exn ->
+      failwith
+        [%string
+          "Error when parsing argument %{argument_name_string} (%{arg}): \
+           %{Exn.to_string exn}"]
 
 let command =
   Command.basic ~summary:"Process Alcotest output"
@@ -67,12 +80,8 @@ let command =
          ~ctrf_output_path:
            (path_of_string_arg_exn ~arg_name:"test_summary_output_path"
               ctrf_output_path)
-         ~start_timestamp:
-           (Time_float_unix.parse start_timestamp ~fmt:"%Y-%m-%dT%H:%M:%S"
-              ~zone:Time_float_unix.Zone.utc)
-         ~end_timestamp:
-           (Time_float_unix.parse end_timestamp ~fmt:"%Y-%m-%dT%H:%M:%S"
-              ~zone:Time_float_unix.Zone.utc)
+         ~start_timestamp:(datetime_of_string_arg_exn start_timestamp)
+         ~end_timestamp:(datetime_of_string_arg_exn end_timestamp)
          ~alcotest_version)
 
 let () = Command_unix.run ~version:"1.0" command
