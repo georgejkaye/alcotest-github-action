@@ -42,13 +42,24 @@ module TestInsight = struct
 end
 
 module Status = struct
-  type t =
-    | Passed [@json "passed"]
-    | Failed [@json "failed"]
-    | Skipped [@json "skipped"]
-    | Pending [@json "pending"]
-    | Other [@json "other"]
-  [@@deriving show, yojson]
+  type t = Passed | Failed | Skipped | Pending | Other [@@deriving show]
+
+  let to_yojson t =
+    `String
+      (match t with
+      | Passed -> "passed"
+      | Failed -> "failed"
+      | Skipped -> "skipped"
+      | Pending -> "pending"
+      | Other -> "other")
+
+  let of_yojson = function
+    | `String "passed" -> Ok Passed
+    | `String "failed" -> Ok Failed
+    | `String "skipped" -> Ok Skipped
+    | `String "pending" -> Ok Pending
+    | `String "other" -> Ok Other
+    | _ -> Error "Could not parse as test status"
 end
 
 module RetryAttempt = struct
