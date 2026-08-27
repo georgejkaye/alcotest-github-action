@@ -10,11 +10,9 @@ module type T = sig
 end
 
 module Empty : T = struct
-  type t =
-    (unit
-    [@to_yojson fun _ -> `Assoc []]
-    [@of_yojson function `Assoc [] -> Ok () | _ -> Error "Object.Empty.t"])
-  [@@deriving show, yojson]
+  type t = unit [@@deriving show]
 
+  let to_yojson = function _ -> `Assoc []
+  let of_yojson = function `Assoc [] -> Ok () | _ -> Error "Object.Empty.t"
   let v = ()
 end
