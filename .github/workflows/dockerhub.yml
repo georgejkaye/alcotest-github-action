@@ -149,7 +149,7 @@ jobs:
       - name: Update dockerhub tag in action yml
         run: |
           sed -i \
-            "s#image: .*#image: ${{ needs.version.outputs.docker-release-tag }}#" \
+            "s#image: .*#image: docker://${{ needs.version.outputs.docker-release-tag }}#" \
             action.yml
 
       - name: Commit updated action yml
