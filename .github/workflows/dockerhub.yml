@@ -42,7 +42,7 @@ jobs:
       uses: docker/build-push-action@v5
       with:
        push: true
-       tags: georgejkaye/alcotest-github-action:${{ env.GitVersion_FullSemVer }}
+       tags: georgejkaye/alcotest-github-action:v${{ env.GitVersion_FullSemVer }}
 
     - name: Update dockerhub description
       uses: peter-evans/dockerhub-description@v3
