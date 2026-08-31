@@ -115,10 +115,8 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Push to dockerhub
-        uses: docker/build-push-action@v5
-        with:
-          push: true
-          tags: ${{ needs.version.outputs.docker-release-tag }}
+        run: |
+          docker push ${{ needs.version.outputs.docker-release-tag }}
 
       - name: Update dockerhub description
         uses: peter-evans/dockerhub-description@v3
