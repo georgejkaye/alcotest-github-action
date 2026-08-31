@@ -37,8 +37,10 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - build
+
     outputs:
       version: ${{ steps.version.outputs.fullSemVer }}
+      docker-release-tag: ${{ steps.tag.outputs.tag }}
 
     permissions:
       contents: write
@@ -48,6 +50,11 @@ jobs:
       queue: max
 
     steps:
+
+    - name: Check out repo
+      uses: actions/checkout@v7
+      with:
+        fetch-depth: 0
 
     - name: Install GitVersion
       uses: gittools/actions/gitversion/setup@v4.7.0
@@ -65,30 +72,27 @@ jobs:
           git push --delete v${{ steps.version.outputs.fullSemVer }}
         fi
 
-    - name: Update dockerhub tag in action yml
-      run: |
-        sed -i \
-          "s#image: docker://georgejkaye/alcotest-github-action:v[0-9.]*#image: docker://georgejkaye/alcotest-github-action:v${{ env.GitVersion_FullSemVer }}#" \
-          action.yml
+    - name: Export docker tag variable
+      id: tag
+      run: echo "tag=${{ vars.DOCKERHUB_REPO }}:v${{ steps.version.outputs.fullSemVer }}"
 
-    - name: Commit updated action yml
-      uses: EndBug/add-and-commit@v11.1.1
-      with:
-        pull: "--rebase"
-        add: action.yml
-        message: "build: update tag"
-        tag: v${{ steps.version.outputs.fullSemVer }}
 
   push:
     runs-on: ubuntu-latest
+
     needs:
-      - build
       - version
 
-    env:
-      DOCKER_RELEASE_TAG: ${{ vars.DOCKERHUB_REPO }}:v${{ needs.version.outputs.version }}
+    concurrency:
+      group: versioning
+      queue: max
 
     steps:
+
+      - name: Check out repo
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
 
       - name: Download artifact
         uses: actions/download-artifact@v4
@@ -102,7 +106,7 @@ jobs:
 
       - name: Tag image
         run: |
-          docker tag ${{ env.DOCKER_BUILD_TAG }} ${{ env.DOCKER_RELEASE_TAG }}
+          docker tag ${{ env.DOCKER_BUILD_TAG }} ${{ needs.version.outputs.docker-release-tag }}
 
       - name: Login to dockerhub
         uses: docker/login-action@v3
@@ -114,7 +118,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           push: true
-          tags: ${{ env.DOCKER_RELEASE_TAG }}
+          tags: ${{ needs.version.outputs.docker-release-tag }}
 
       - name: Update dockerhub description
         uses: peter-evans/dockerhub-description@v3
@@ -122,3 +126,39 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
           repository: ${{ vars.DOCKERHUB_REPO }}
+
+  update:
+    runs-on: ubuntu-latest
+
+    needs:
+      - version
+      - push
+
+    permissions:
+      contents: write
+
+    concurrency:
+      group: versioning
+      queue: max
+
+    steps:
+
+      - name: Check out repo
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Update dockerhub tag in action yml
+        run: |
+          sed -i \
+            "s#image: .*#image: ${{ needs.version.outputs.docker-release-tag }}#" \
+            action.yml
+
+      - name: Commit updated action yml
+        uses: EndBug/add-and-commit@v11.1.1
+        with:
+          pull: "--rebase"
+          add: action.yml
+          message: "build: update tag"
+          tag: v${{ needs.version.outputs.version }}
+
