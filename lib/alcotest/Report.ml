@@ -78,7 +78,7 @@ let to_ctrf_tests report =
         ~status:(if test.success then Passed else Failed)
         ~duration:0
         ~suite:(String.split ~on:'.' test.suite)
-        ())
+        ~message:test.log ())
 
 let to_ctrf_environment report =
   let get_workflow_url =
