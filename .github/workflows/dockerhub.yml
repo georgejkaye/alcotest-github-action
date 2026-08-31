@@ -39,6 +39,7 @@ jobs:
       with:
         add: action.yml
         message: "build: Update action.yml with new dockerhub tag"
+        github_token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Bump version and push tag
       uses: mathieudutour/github-tag-action@v6.2
