@@ -74,7 +74,7 @@ jobs:
 
     - name: Export docker tag variable
       id: tag
-      run: echo "tag=${{ vars.DOCKERHUB_REPO }}:v${{ steps.version.outputs.fullSemVer }}"
+      run: echo "tag=${{ vars.DOCKERHUB_REPO }}:v${{ steps.version.outputs.fullSemVer }} >> $GITHUB_OUTPUT"
 
 
   push:
