@@ -23,8 +23,10 @@ jobs:
 
     - name: Remove existing tags
       run: |
-        git tag -d ${{ env.GitVersion_FullSemVer }}
-        git push --delete ${{ env.GitVersion_FullSemVer}}
+        if [ $(git tag -l "v${{ env.GitVersion_FullSemVer }}") ]; then
+          git tag -d v${{ env.GitVersion_FullSemVer }}
+          git push --delete v${{ env.GitVersion_FullSemVer}}
+        fi
 
     - name: Update dockerhub tag in action yml
       run: |
