@@ -159,3 +159,10 @@ jobs:
           message: "ci: update tag"
           tag: v${{ needs.version.outputs.version }}
 
+      - name: Create release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ needs.version.outputs.version }}
+          release_name: v${{ needs.version.outputs.version }}
