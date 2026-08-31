@@ -91,7 +91,7 @@ let to_ctrf_environment report =
     ~appName:(Sys.getenv_exn "GITHUB_REPOSITORY")
     ~buildId:(Sys.getenv_exn "GITHUB_RUN_ID")
     ~buildName:(Sys.getenv_exn "GITHUB_WORKFLOW")
-    ~buildNumber:(Sys.getenv_exn "GITHUB_RUN_NUMBER")
+    ~buildNumber:(Sys.getenv_exn "GITHUB_RUN_NUMBER" |> Int.of_string)
     ~buildUrl:get_workflow_url
     ~commit:(Sys.getenv_exn "GITHUB_SHA")
     ~branchName:(Sys.getenv_exn "GITHUB_REF")

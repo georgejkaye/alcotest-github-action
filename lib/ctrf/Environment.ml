@@ -13,7 +13,7 @@ module Make (Extras : Extras) = struct
     appVersion : string option;
     buildId : string option;
     buildName : string option;
-    buildNumber : string option;
+    buildNumber : int option;
     buildUrl : string option;
     repositoryName : string option;
     repositoryUrl : string option;
