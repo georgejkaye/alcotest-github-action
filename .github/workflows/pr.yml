@@ -1,0 +1,28 @@
+name: Build
+on:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out repo
+      uses: actions/checkout@v7
+      with:
+        fetch-depth: 0
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v4
+
+    - name: Build Docker image
+      uses: docker/build-push-action@v5
+      with:
+        outputs: type=docker,dest=${{ runner.temp }}/image.tar
+        tags: ${{ env.DOCKER_BUILD_TAG }}
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: image
+        path: ${{ runner.temp }}/image.tar
