@@ -155,7 +155,6 @@ jobs:
       - name: Commit updated action yml
         uses: EndBug/add-and-commit@v11.1.1
         with:
-          pull: "--rebase"
           add: action.yml
           message: "build: update tag"
           tag: v${{ needs.version.outputs.version }}
