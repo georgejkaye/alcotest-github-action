@@ -5,7 +5,7 @@ let test_run_id_regex = Util.Regex.get_regex "This run has ID `(.*)'."
 
 let test_headline_regex =
   Util.Regex.get_regex
-    "    (?:\\[(OK)\\]  |\\[(FAIL)\\])        (.*?)([0-9]+)   (.*)\\."
+    "  (?:\\[(OK)\\]  |\\[(FAIL)\\])        (.*?)([0-9]+)   (.*)\\."
 
 let get_data ~regex ~summary test_output =
   match Re.exec_opt regex test_output with
