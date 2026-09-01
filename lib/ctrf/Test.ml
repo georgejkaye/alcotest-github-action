@@ -1,3 +1,5 @@
+open Util.Make
+
 module Attachment = struct
   module type Extras = sig
     module Attachment : Object.T
@@ -142,7 +144,7 @@ struct
     stop : int option;
     suite : string list option;
     message : string option;
-    trace : string option;
+    trace : string explicit_option; [@default None]
     snippet : string option;
     ai : string option;
     line : string option;

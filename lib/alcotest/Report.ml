@@ -2,6 +2,7 @@ open! Core
 open Core_unix
 open Yojson
 open! Util.Datetime
+open! Util.String
 
 type t = {
   name : string;
@@ -24,20 +25,23 @@ let get_test_log_content th log_root =
 
 module StringSet = Core.Set.Make (String)
 
+let parse_test_log_content content =
+  String.split_on_pattern content ~pattern:"Raised at " ~drop_pattern:false
+  |> function
+  | log, None -> (String.strip log, None)
+  | log, Some trace -> (String.strip log, Some (String.strip trace))
+
 let of_test_headlines ~name ~id ~start_timestamp ~end_timestamp ~version
     (ths : Headline.t list) log_root =
   List.fold (List.rev ths) ~init:(0, 0, 0, StringSet.empty, [])
     ~f:(fun (count, passed, failed, suites, acc) cur ->
-      let log_content = get_test_log_content cur log_root in
+      let log, trace =
+        get_test_log_content cur log_root |> parse_test_log_content
+      in
       let cur_test_suite = cur.test_suite in
-      let test : Test.t =
-        {
-          name = cur.name;
-          suite = cur_test_suite;
-          index = cur.index;
-          success = cur.success;
-          log = log_content;
-        }
+      let test =
+        Test.make ~name:cur.name ~suite:cur_test_suite ~index:cur.index
+          ~success:cur.success ~log ~trace
       in
       let new_passed, new_failed =
         if cur.success then (passed + 1, failed) else (passed, failed + 1)
@@ -78,7 +82,7 @@ let to_ctrf_tests report =
         ~status:(if test.success then Passed else Failed)
         ~duration:0
         ~suite:(String.split ~on:'.' test.suite)
-        ~message:test.log ())
+        ~message:test.log () ~trace:test.trace)
 
 let to_ctrf_environment report =
   let get_workflow_url =

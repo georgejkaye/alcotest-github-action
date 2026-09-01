@@ -1,14 +1,11 @@
+open Util.Make
+
 type t = {
   name : string;
   suite : string;
   index : int;
   success : bool;
   log : string;
+  trace : string explicit_option;
 }
-
-let to_string tr =
-  let success_string = if tr.success then "PASS" else "FAIL" in
-  [%string
-    "%{Int.to_string tr.index}) %{tr.name}: %{success_string}\n\n\
-     %{tr.log}\n\
-     -------------------------------\n"]
+[@@deriving show, make]
