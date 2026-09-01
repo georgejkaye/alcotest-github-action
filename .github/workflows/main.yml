@@ -145,6 +145,7 @@ jobs:
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
+          token: ${{ secrets.DEPLOY_TOKEN }}
 
       - name: Update dockerhub tag in action yml
         run: |
