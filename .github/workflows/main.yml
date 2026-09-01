@@ -157,7 +157,7 @@ jobs:
         uses: EndBug/add-and-commit@v11.1.1
         with:
           add: action.yml
-          message: "ci: update tag\n\nskip-checks: true"
+          message: "ci: update tag\n\n\nskip-checks: true"
           commit: "--cleanup=verbatim"
           tag: v${{ needs.version.outputs.version }}
           author_name: "github-actions[bot]"
