@@ -159,6 +159,8 @@ jobs:
           add: action.yml
           message: "ci: update tag"
           tag: v${{ needs.version.outputs.version }}
+          author_name: "github-actions[bot]"
+          author_email: "github-actions[bot]@users.noreply.github.com"
 
       - name: Create release
         uses: actions/create-release@v1
