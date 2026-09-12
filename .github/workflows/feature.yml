@@ -5,7 +5,7 @@ on:
       - main
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
 
     steps:
@@ -17,94 +17,81 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v4
 
-    - name: Build Docker image for testing
+    - name: Build base Docker image
       run: |
-        docker buildx build . --target=builder --output=type=docker,dest=${{ runner.temp }}/image.tar
+        docker buildx build . --target=builder
+
+    - name: Load image
+      run: |
+        docker load --input ${{ runner.temp }}/image.tar
+
+    - name: Build testing Docker image
+      run: |
+        docker buildx build . --target=tester -t tester
+
+    - name: Get Alcotest version
+      id: alcotest-version
+      run: |
+        docker run tester echo "version=$(opam info alcotest --color=never | sed -n 's#.*\(version\)[[:space:]]*\([0-9]\+\(\.[0-9]\+\)*\).*#\2#p')" >> "$GITHUB_OUTPUT"
+
+    - name: Get testing start timestamp
+      id: test-start-timestamp
+      run: echo "timestamp=$(date '+%Y-%m-%dT%H:%M:%S')" >> "$GITHUB_OUTPUT"
+
+    - name: Run tester
+      run: |
+        docker run tester dune runtest 2> >(tee test_results.txt)
+
+    - name: Get testing start timestamp
+      id: test-end-timestamp
+      run: echo "timestamp=$(date '+%Y-%m-%dT%H:%M:%S')" >> "$GITHUB_OUTPUT"
+      if: always()
+
+    - name: Upload runtest output artifact
+      uses: actions/upload-artifact@v7
+      with:
+          name: alcotest-raw
+          path: test_results.txt
+      if: always()
+
+    - name: Process test output
+      uses: georgejkaye/alcotest-github-action@v2.8.0
+      with:
+        alcotest-input-path: test_results.txt
+        ctrf-output-path: alcotest-ctrf.json
+        start-timestamp: ${{ steps.test-start-timestamp.outputs.timestamp }}
+        end-timestamp:  ${{ steps.test-end-timestamp.outputs.timestamp }}
+        alcotest-version: ${{ steps.alcotest-version.outputs.version }}
+      if: always()
+
+    - name: Upload test results artifact
+      uses: actions/upload-artifact@v7
+      with:
+          name: alcotest-ctrf
+          path: alcotest-ctrf.json
+      if: always()
+
+    - name: Publish test report
+      uses: ctrf-io/github-test-reporter@v1.3.0
+      with:
+        report-path: alcotest-ctrf.json
+        upload-artifact: true
+        fetch-previous-results: true
+        github-report: true
+        failed-folded-report: true
+        suite-folded-report: true
+        always-group-by: true
+        group-by: suite
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      if: always()
+
+    - name: Build final Docker image
+      run: |
+        docker buildx build . --target=runner --output=type=docker,dest=${{ runner.temp }}/image.tar
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
         name: image
         path: ${{ runner.temp }}/image.tar
-
-  test:
-    runs-on: ubuntu-latest
-    needs: build
-
-    steps:
-
-      - name: Check out repo
-        uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-
-      - name: Download artifact
-        uses: actions/download-artifact@v4
-        with:
-            name: image
-            path: ${{ runner.temp }}
-
-      - name: Load image
-        run: |
-          docker load --input ${{ runner.temp }}/image.tar
-
-      - name: Build tester
-        run: |
-          docker buildx build . --target=tester -t tester
-
-      - name: Get Alcotest version
-        id: alcotest-version
-        run: |
-          docker run tester echo "version=$(opam info alcotest --color=never | sed -n 's#.*\(version\)[[:space:]]*\([0-9]\+\(\.[0-9]\+\)*\).*#\2#p')" >> "$GITHUB_OUTPUT"
-
-      - name: Get testing start timestamp
-        id: test-start-timestamp
-        run: echo "timestamp=$(date '+%Y-%m-%dT%H:%M:%S')" >> "$GITHUB_OUTPUT"
-
-      - name: Run tester
-        run: |
-          docker run tester dune runtest 2> >(tee test_results.txt)
-
-      - name: Get testing start timestamp
-        id: test-end-timestamp
-        run: echo "timestamp=$(date '+%Y-%m-%dT%H:%M:%S')" >> "$GITHUB_OUTPUT"
-        if: always()
-
-      - name: Upload runtest output artifact
-        uses: actions/upload-artifact@v7
-        with:
-            name: alcotest-raw
-            path: test_results.txt
-        if: always()
-
-      - name: Process test output
-        uses: georgejkaye/alcotest-github-action@v2.8.0
-        with:
-          alcotest-input-path: test_results.txt
-          ctrf-output-path: alcotest-ctrf.json
-          start-timestamp: ${{ steps.test-start-timestamp.outputs.timestamp }}
-          end-timestamp:  ${{ steps.test-end-timestamp.outputs.timestamp }}
-          alcotest-version: ${{ steps.alcotest-version.outputs.version }}
-        if: always()
-
-      - name: Upload test results artifact
-        uses: actions/upload-artifact@v7
-        with:
-            name: alcotest-ctrf
-            path: alcotest-ctrf.json
-        if: always()
-
-      - name: Publish test report
-        uses: ctrf-io/github-test-reporter@v1.3.0
-        with:
-          report-path: alcotest-ctrf.json
-          upload-artifact: true
-          fetch-previous-results: true
-          github-report: true
-          failed-folded-report: true
-          suite-folded-report: true
-          always-group-by: true
-          group-by: suite
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        if: always()
