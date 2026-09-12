@@ -19,7 +19,7 @@ jobs:
 
     - name: Build Docker image for testing
       run: |
-        docker build --target=builder --output=type=docker,dest=${{ runner.temp }}/image.tar
+        docker build . --target=builder --output=type=docker,dest=${{ runner.temp }}/image.tar
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
@@ -50,7 +50,7 @@ jobs:
 
       - name: Build tester
         run: |
-          docker build --target=tester -t tester
+          docker build . --target=tester -t tester
 
       - name: Get Alcotest version
         id: alcotest-version
