@@ -1,11 +1,7 @@
-type t = { test_suite : string; index : int; name : string; success : bool }
-[@@deriving show, make]
+open Ppx_compare_lib.Builtin
 
-let to_string th =
-  let success_string = if th.success then "PASS" else "FAIL" in
-  [%string
-    "%{th.test_suite}:%{Int.to_string th.index} - %{th.name} - \
-     %{success_string}"]
+type t = { test_suite : string; index : int; name : string; success : bool }
+[@@deriving equal, make, show]
 
 let to_log_path th log_root =
   let test_index_string =
