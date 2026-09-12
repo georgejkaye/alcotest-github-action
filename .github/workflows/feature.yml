@@ -19,11 +19,7 @@ jobs:
 
     - name: Build base Docker image
       run: |
-        docker buildx build . --target=builder
-
-    - name: Load image
-      run: |
-        docker load --input ${{ runner.temp }}/image.tar
+        docker buildx build . --target=builder -t builder
 
     - name: Build testing Docker image
       run: |
