@@ -11,7 +11,15 @@ RUN opam install . --deps-only
 COPY bin bin
 COPY lib lib
 
-RUN eval $(opam env); dune build
+RUN opam exec -- dune build bin
+
+FROM builder AS tester
+
+RUN opam install . --deps-only --with-test
+
+COPY test test
+
+RUN opam exec -- dune build test
 
 FROM debian:12 AS runner
 
