@@ -30,6 +30,8 @@
   ppx_deriving_yojson
   ppx_string
   uuidm
-  yojson)
+  yojson
+  (alcotest :with-test)
+  (fmt :with-test))
  (tags
   ("alcotest" "github actions" "ci" "testing")))

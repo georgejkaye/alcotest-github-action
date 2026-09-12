@@ -21,6 +21,8 @@ depends: [
   "ppx_string"
   "uuidm"
   "yojson"
+  "alcotest" {with-test}
+  "fmt" {with-test}
   "odoc" {with-doc}
 ]
 build: [
