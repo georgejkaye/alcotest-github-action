@@ -1,3 +1,7 @@
 (test
- (name test_alcotest_action)
- (libraries lib))
+ (name test)
+ (preprocess
+  (pps ppx_string))
+ (libraries lib core alcotest fmt))
+
+(include_subdirs qualified)
