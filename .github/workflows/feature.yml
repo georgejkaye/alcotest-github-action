@@ -19,8 +19,8 @@ jobs:
 
     - name: Build Docker image for testing
       run: |
-        docker build
-          --target=builder
+        docker build \
+          --target=builder \
           --output=type=docker,dest=${{ runner.temp }}/image.tar
 
     - name: Upload artifact
