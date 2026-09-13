@@ -57,7 +57,7 @@ jobs:
           -v ${{ github.workspace }}/test-env:/home/opam/app \
           -w /home/opam/app \
           ocaml/opam:debian-12-ocaml-5.5 \
-          sh -c "eval \$(opam env) && dune runtest 2> >(tee test_results.txt)"
+          bash -c "eval \$(opam env) && dune runtest 2> >(tee test_results.txt)"
 
     - name: Get testing end timestamp
       id: test-end-timestamp
