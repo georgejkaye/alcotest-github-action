@@ -15,7 +15,7 @@ COPY lib lib
 
 RUN opam exec -- dune build bin
 
-FROM scratch AS build_workspace
+FROM scratch AS builder_workspace
 
 COPY --from=builder /home/opam/app /
 
@@ -30,7 +30,7 @@ COPY test test
 
 RUN opam exec -- dune build test
 
-FROM scratch AS test_workspace
+FROM scratch AS tester_workspace
 
 COPY --from=tester /home/opam/app /
 
