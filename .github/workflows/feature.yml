@@ -61,7 +61,7 @@ jobs:
         start-timestamp: ${{ steps.test-start-timestamp.outputs.timestamp }}
         end-timestamp:  ${{ steps.test-end-timestamp.outputs.timestamp }}
         alcotest-version: ${{ steps.alcotest-version.outputs.version }}
-      if: steps.upload-test-output.outcome == 'success'
+      if: success() || steps.upload-test-output.outcome == 'success'
 
     - name: Upload test results artifact
       id: upload-test-ctrf
@@ -69,7 +69,7 @@ jobs:
       with:
           name: alcotest-ctrf
           path: alcotest-ctrf.json
-      if: steps.process-test-output.outcome == 'success'
+      if: success() || steps.process-test-output.outcome == 'success'
 
     - name: Publish test report
       uses: ctrf-io/github-test-reporter@v1.3.0
