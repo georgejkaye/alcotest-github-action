@@ -10,16 +10,12 @@ target "builder_stage" {
   context    = "."
   dockerfile = "Dockerfile"
   target     = "builder"
-  cache-from = ["type=gha,scope=opam-builder-cache"]
-  cache-to   = ["type=gha,mode=max,scope=opam-builder-cache"]
 }
 
 target "tester_stage" {
   context    = "."
   dockerfile = "Dockerfile"
   target     = "tester"
-  cache-from = ["type=gha,scope=opam-tester-cache"]
-  cache-to   = ["type=gha,mode=max,scope=opam-tester-cache"]
 }
 
 target "builder_export" {
