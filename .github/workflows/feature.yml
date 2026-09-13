@@ -84,7 +84,7 @@ jobs:
         group-by: suite
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      if: steps.upload-test-ctrf.outcome == 'success'
+      if: success() || steps.upload-test-ctrf.outcome == 'success'
 
     - name: Build final Docker image
       run: |
