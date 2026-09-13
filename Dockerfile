@@ -17,7 +17,7 @@ RUN opam exec -- dune build bin
 
 FROM scratch AS builder_workspace
 
-COPY --from=builder /home/opam/app /
+COPY --from=builder /home/opam/action /
 
 FROM builder AS tester
 
@@ -32,7 +32,7 @@ RUN opam exec -- dune build test
 
 FROM scratch AS tester_workspace
 
-COPY --from=tester /home/opam/app /
+COPY --from=tester /home/opam/action /
 
 FROM debian:12 AS runner
 
