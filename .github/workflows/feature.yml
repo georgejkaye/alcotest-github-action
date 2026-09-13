@@ -45,10 +45,11 @@ jobs:
       id: run-tests
       run: |
         docker run --rm \
+          -u opam
           -v ${{ runner.temp }}/test-env:/home/opam/app \
           -w /home/opam/app \
           ocaml/opam:debian-12-ocaml-5.5 \
-          bash -c "eval \$(opam env) && dune runtest 2>&1 | tee test_results.txt"
+          opam exec -- dune runtest 2>&1 | tee test_results.txt
 
     - name: Get testing end timestamp
       id: test-end-timestamp
