@@ -14,7 +14,7 @@ target "builder_stage" {
   cache-to   = ["type=gha,mode=max,scope=opam-builder-cache"]
 }
 
-target "test_stage" {
+target "tester_stage" {
   context    = "."
   dockerfile = "Dockerfile"
   target     = "tester"
