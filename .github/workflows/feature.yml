@@ -42,7 +42,7 @@ jobs:
     - name: Get testing end timestamp
       id: test-end-timestamp
       run: echo "timestamp=$(date '+%Y-%m-%dT%H:%M:%S')" >> "$GITHUB_OUTPUT"
-      if: success() || steps.run-tests.outcome == "failure"
+      if: success() || steps.run-tests.outcome == 'failure'
 
     - name: Upload runtest output artifact
       id: upload-test-output
@@ -50,7 +50,7 @@ jobs:
       with:
           name: alcotest-raw
           path: test_results.txt
-      if: success() || steps.run-tests.outcome == "failure"
+      if: success() || steps.run-tests.outcome == 'failure'
 
     - name: Process test output
       id: process-test-output
@@ -61,7 +61,7 @@ jobs:
         start-timestamp: ${{ steps.test-start-timestamp.outputs.timestamp }}
         end-timestamp:  ${{ steps.test-end-timestamp.outputs.timestamp }}
         alcotest-version: ${{ steps.alcotest-version.outputs.version }}
-      if: steps.upload-test-output.outcome == "success"
+      if: steps.upload-test-output.outcome == 'success'
 
     - name: Upload test results artifact
       id: upload-test-ctrf
@@ -69,7 +69,7 @@ jobs:
       with:
           name: alcotest-ctrf
           path: alcotest-ctrf.json
-      if: steps.process-test-output.outcome == "success"
+      if: steps.process-test-output.outcome == 'success'
 
     - name: Publish test report
       uses: ctrf-io/github-test-reporter@v1.3.0
@@ -84,7 +84,7 @@ jobs:
         group-by: suite
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      if: steps.upload-test-ctrf.outcome == "success"
+      if: steps.upload-test-ctrf.outcome == 'success'
 
     - name: Build final Docker image
       run: |
