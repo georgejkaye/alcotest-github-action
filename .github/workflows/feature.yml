@@ -60,7 +60,7 @@ jobs:
           -v ${{ runner.temp }}/test-env:/home/opam/app \
           -w /home/opam/app \
           ocaml/opam:debian-12-ocaml-5.5 \
-          bash -c "eval \$(opam env) && dune runtest 2> >(tee test_results.txt)"
+          bash -c "eval \$(opam env) && dune runtest 2>&1 | tee test_results.txt"
 
     - name: Get testing end timestamp
       id: test-end-timestamp
@@ -72,7 +72,7 @@ jobs:
       uses: actions/upload-artifact@v7
       with:
           name: alcotest-raw
-          path: test_results.txt
+          path: ${{ runner.temp }}/test-env/test_results.txt
       if: success() || steps.run-tests.outcome == 'failure'
 
     - name: Process test output
