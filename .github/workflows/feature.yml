@@ -49,7 +49,7 @@ jobs:
           -v ${{ runner.temp }}/test-env:/home/opam/app \
           -w /home/opam/app \
           ocaml/opam:debian-12-ocaml-5.5 \
-          opam exec -- dune runtest 2>&1 | tee test_results.txt
+          bash --login -c "dune runtest 2>&1 | tee test_results.txt"
 
     - name: Get testing end timestamp
       id: test-end-timestamp
