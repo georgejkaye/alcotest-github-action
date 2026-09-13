@@ -8,7 +8,7 @@ COPY --chown=opam:opam *.opam dune-project ./
 FROM base AS builder
 
 RUN \
-    --mount=type=cache,target=/home/opam/.opam/download-cache,sharing=shared,uid=1000,gid=1000 \
+    --mount=type=cache,target=/home/opam/.opam/download-cache,sharing=locked,uid=1000,gid=1000 \
     opam update && \
     opam install . --deps-only -y
 
@@ -24,7 +24,7 @@ COPY --from=builder /home/opam/action /
 FROM base AS tester
 
 RUN \
-    --mount=type=cache,target=/home/opam/.opam/download-cache,sharing=shared,uid=1000,gid=1000 \
+    --mount=type=cache,target=/home/opam/.opam/download-cache,sharing=locked,uid=1000,gid=1000 \
     opam update && \
     opam install . --deps-only --with-test -y
 
