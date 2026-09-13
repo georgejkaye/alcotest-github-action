@@ -27,6 +27,8 @@ jobs:
         cache-to: type=gha,mode=max,scope=opam-docker-cache
         set: |
           *.args.RUNNER_TEMP=${{ runner.temp }}
+          *.cache-from=type=gha,scope=opam-docker-cache
+          *.cache-to=type=gha,mode=max,scope=opam-docker-cache
 
     - name: Get Alcotest version
       id: alcotest-version
