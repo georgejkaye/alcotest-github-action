@@ -16,6 +16,6 @@ target "builder" {
 target "tester" {
   context    = "."
   dockerfile = "Dockerfile"
-  target     = "test_workspace"
+  target     = "tester_workspace"
   output     = ["type=local,dest=${RUNNER_TEMP}/test-env"]
 }
