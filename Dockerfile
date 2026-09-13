@@ -44,7 +44,7 @@ WORKDIR /action
 
 RUN mkdir -p /github/workspace
 
-COPY --from=builder /action/_build/default/bin/main.exe /action/main.exe
+COPY --from=builder /home/opam/action/_build/default/bin/main.exe /home/opam/action/main.exe
 
 COPY entrypoint.sh entrypoint.sh
 
