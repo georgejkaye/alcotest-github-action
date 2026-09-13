@@ -19,11 +19,11 @@ jobs:
 
     - name: Build base Docker image
       run: |
-        docker buildx build . --target=builder -t builder
+        docker buildx build . --target=builder -t builder --load
 
     - name: Build testing Docker image
       run: |
-        docker buildx build . --target=tester -t tester
+        docker buildx build . --target=tester -t tester --load
 
     - name: Get Alcotest version
       id: alcotest-version
