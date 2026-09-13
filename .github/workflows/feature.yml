@@ -20,24 +20,15 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v4
 
-    - name: Build base Docker image
+    - name: Build Docker images
       uses: docker/build-push-action@v7
       with:
         context: .
         cache-from: type=gha,scope=opam-docker-cache
         cache-to: type=gha,mode=max,scope=opam-docker-cache
-        target: builder_workspace
-        outputs: type=local,dest=${{ runner.temp }}/build-env
-        push: false
-
-    - name: Build tester Docker image
-      uses: docker/build-push-action@v7
-      with:
-        context: .
-        cache-from: type=gha,scope=opam-docker-cache
-        cache-to: type=gha,mode=max,scope=opam-docker-cache
-        target: tester_workspace
-        outputs: type=local,dest=${{ runner.temp }}/test-env
+        outputs: |
+          type=local,dest=${{ runner.temp }}/build-env,target=builder_workspace
+          type=local,dest=${{ runner.temp }}/test-env,target=test_workspace
         push: false
 
     - name: Get Alcotest version
