@@ -15,6 +15,10 @@ COPY lib lib
 
 RUN opam exec -- dune build bin
 
+FROM scratch AS build_workspace
+
+COPY --from=builder /home/opam/app /
+
 FROM builder AS tester
 
 RUN \
@@ -25,6 +29,10 @@ RUN \
 COPY test test
 
 RUN opam exec -- dune build test
+
+FROM scratch AS test_workspace
+
+COPY --from=tester /home/opam/app /
 
 FROM debian:12 AS runner
 
