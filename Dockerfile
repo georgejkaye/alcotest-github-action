@@ -1,9 +1,11 @@
-FROM ocaml/opam:debian-12-ocaml-5.5 AS builder
+FROM ocaml/opam:debian-12-ocaml-5.5 AS base
 
 WORKDIR /home/opam/action
 
-COPY dune-project .
-COPY alcotest_action.opam .
+COPY --chown=opam:opam *.opam dune-project ./
+
+
+FROM base AS builder
 
 RUN \
     --mount=type=cache,target=/home/opam/.opam/download-cache,sharing=shared,uid=1000,gid=1000 \
@@ -19,13 +21,15 @@ FROM scratch AS builder_workspace
 
 COPY --from=builder /home/opam/action /
 
-FROM builder AS tester
+FROM base AS tester
 
 RUN \
     --mount=type=cache,target=/home/opam/.opam/download-cache,sharing=shared,uid=1000,gid=1000 \
     opam update && \
-    opam install . --deps-only --with-test
+    opam install . --deps-only --with-test -y
 
+COPY bin bin
+COPY lib lib
 COPY test test
 
 RUN opam exec -- dune build test
