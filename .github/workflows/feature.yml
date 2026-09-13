@@ -21,28 +21,28 @@ jobs:
       uses: docker/build-push-action@v7
       with:
         context: .
-        push: false
         cache-from: type=gha,scope=opam-docker-cache
         cache-to: type=gha,mode=max,scope=opam-docker-cache
-        target: builder
+        target: builder_workspace
+        outputs: type=local,dest=./build-env
         tags: builder
-        load: true
+        push: false
 
     - name: Build tester Docker image
       uses: docker/build-push-action@v7
       with:
         context: .
-        push: false
         cache-from: type=gha,scope=opam-docker-cache
         cache-to: type=gha,mode=max,scope=opam-docker-cache
-        target: tester
+        target: tester_workspace
+        outputs: type=local,dest=./test-env
         tags: tester
-        load: true
+        push: false
 
     - name: Get Alcotest version
       id: alcotest-version
       run: |
-        docker run tester echo "version=$(opam info alcotest --color=never | sed -n 's#.*\(version\)[[:space:]]*\([0-9]\+\(\.[0-9]\+\)*\).*#\2#p')" >> "$GITHUB_OUTPUT"
+          echo "version=$(cat test-env/_opam/lib/alcotest/META | sed -n 's#version = "\(.*\)".*#\1#p;q')" >> "$GITHUB_OUTPUT"
 
     - name: Get testing start timestamp
       id: test-start-timestamp
@@ -51,7 +51,11 @@ jobs:
     - name: Run tests
       id: run-tests
       run: |
-        docker run tester dune runtest 2> >(tee test_results.txt)
+        docker run --rm \
+          -v ${{ github.workspace }}/test-env:/home/opam/app \
+          -w /home/opam/app \
+          ocaml/opam:debian-12-ocaml-5.5 \
+          opam exec -- dune runtest 2> >(tee test_results.txt)
 
     - name: Get testing end timestamp
       id: test-end-timestamp
