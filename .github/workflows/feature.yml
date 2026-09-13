@@ -25,7 +25,8 @@ jobs:
         cache-from: type=gha,scope=opam-docker-cache
         cache-to: type=gha,mode=max,scope=opam-docker-cache
         target: builder
-        tag: builder
+        tags: builder
+        load: true
 
     - name: Build tester Docker image
       uses: docker/build-push-action@v7
@@ -35,7 +36,8 @@ jobs:
         cache-from: type=gha,scope=opam-docker-cache
         cache-to: type=gha,mode=max,scope=opam-docker-cache
         target: tester
-        tag: tester
+        tags: tester
+        load: true
 
     - name: Get Alcotest version
       id: alcotest-version
