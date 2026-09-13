@@ -1,3 +1,7 @@
+variable "RUNNER_TEMP" {
+  default = "./tmp"
+}
+
 group "default" {
   targets = ["builder", "tester"]
 }
