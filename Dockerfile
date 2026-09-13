@@ -1,6 +1,6 @@
 FROM ocaml/opam:debian-12-ocaml-5.5 AS builder
 
-WORKDIR /action
+WORKDIR /home/opam/action
 
 COPY dune-project .
 COPY alcotest_action.opam .
