@@ -5,8 +5,10 @@ WORKDIR /action
 COPY dune-project .
 COPY alcotest_action.opam .
 
-RUN opam init
-RUN opam install . --deps-only
+RUN \
+    --mount=type=cache,target=/home/opam/.opam/download-cache,sharing=shared,uid=1000,gid=1000 \
+    opam update && \
+    opam install . --deps-only -y
 
 COPY bin bin
 COPY lib lib
@@ -15,7 +17,10 @@ RUN opam exec -- dune build bin
 
 FROM builder AS tester
 
-RUN opam install . --deps-only --with-test
+RUN \
+    --mount=type=cache,target=/home/opam/.opam/download-cache,sharing=shared,uid=1000,gid=1000 \
+    opam update && \
+    opam install . --deps-only --with-test
 
 COPY test test
 
