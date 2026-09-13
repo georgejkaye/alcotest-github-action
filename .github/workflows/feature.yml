@@ -42,11 +42,6 @@ jobs:
     - name: Get Alcotest version
       id: alcotest-version
       run: |
-          echo "version=$(cat test-env/_opam/lib/alcotest/META | sed -n 's#version = "\(.*\)".*#\1#p;q')" >> "$GITHUB_OUTPUT"
-
-    - name: Get Alcotest version
-      id: alcotest-version
-      run: |
         docker run --rm \
           -v ${{ github.workspace }}/test-env:/home/opam/app \
           -w /home/opam/app \
