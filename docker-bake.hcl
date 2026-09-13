@@ -3,7 +3,7 @@ variable "RUNNER_TEMP" {
 }
 
 group "default" {
-  targets = ["builder", "tester"]
+  targets = ["builder_export", "tester_export"]
 }
 
 target "builder_stage" {
@@ -17,13 +17,13 @@ target "builder_stage" {
 target "test_stage" {
   context    = "."
   dockerfile = "Dockerfile"
-  target     = "test"
+  target     = "tester"
   cache-from = ["type=gha,scope=opam-tester-cache"]
   cache-to   = ["type=gha,mode=max,scope=opam-tester-cache"]
 }
 
 target "builder_export" {
-  inherits   = ["build_stage"]
+  inherits   = ["builder_stage"]
   target     = "builder_workspace"
   output     = ["type=local,dest=${RUNNER_TEMP}/build-env"]
 }
