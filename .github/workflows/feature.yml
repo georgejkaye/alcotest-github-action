@@ -61,7 +61,7 @@ jobs:
         start-timestamp: ${{ steps.test-start-timestamp.outputs.timestamp }}
         end-timestamp:  ${{ steps.test-end-timestamp.outputs.timestamp }}
         alcotest-version: ${{ steps.alcotest-version.outputs.version }}
-      if: steps.upload-test-output.outcome == "failure"
+      if: steps.upload-test-output.outcome == "success"
 
     - name: Upload test results artifact
       id: upload-test-ctrf
@@ -91,7 +91,7 @@ jobs:
         docker buildx build . --target=runner --output=type=docker,dest=${{ runner.temp }}/image.tar
 
     - name: Upload artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: image
         path: ${{ runner.temp }}/image.tar
