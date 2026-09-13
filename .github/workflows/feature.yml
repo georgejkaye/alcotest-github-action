@@ -25,7 +25,6 @@ jobs:
         cache-to: type=gha,mode=max,scope=opam-docker-cache
         target: builder_workspace
         outputs: type=local,dest=./build-env
-        tags: builder
         push: false
 
     - name: Build tester Docker image
@@ -36,7 +35,6 @@ jobs:
         cache-to: type=gha,mode=max,scope=opam-docker-cache
         target: tester_workspace
         outputs: type=local,dest=./test-env
-        tags: tester
         push: false
 
     - name: Get Alcotest version
