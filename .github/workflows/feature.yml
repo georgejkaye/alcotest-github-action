@@ -45,7 +45,7 @@ jobs:
       id: run-tests
       run: |
         docker run --rm \
-          -u opam
+          -u opam \
           -v ${{ runner.temp }}/test-env:/home/opam/app \
           -w /home/opam/app \
           ocaml/opam:debian-12-ocaml-5.5 \
