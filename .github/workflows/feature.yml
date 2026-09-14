@@ -49,7 +49,7 @@ jobs:
           -v ${{ github.workspace }}:/home/opam/workspace \
           -w /home/opam/action \
           tester \
-          /home/opam/action/test.exe | tee ${{ env.ALCOTEST_OUTPUT }}
+          /home/opam/action/test.exe 2>&1 | tee ${{ env.ALCOTEST_OUTPUT }}
 
     - name: Get testing end timestamp
       id: test-end-timestamp
