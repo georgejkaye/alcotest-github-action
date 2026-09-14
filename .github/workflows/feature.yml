@@ -49,7 +49,7 @@ jobs:
           -v ${{ github.workspace }}:/home/opam/action \
           -w /home/opam/action \
           tester \
-          ./_build/default/tests/test.exe | tee test_results.txt
+          ./_build/default/test/test.exe | tee test_results.txt
 
     - name: Get testing end timestamp
       id: test-end-timestamp
