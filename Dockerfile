@@ -4,10 +4,14 @@ WORKDIR /home/opam/action
 
 COPY --chown=opam:opam *.opam dune-project ./
 
+ENV DUNE_CACHE enabled
+ENV DUNE_CACHE_STORAGE_MODE copy
+
 FROM base AS builder
 
 RUN \
     --mount=type=cache,target=/home/opam/.opam/download-cache,sharing=locked,uid=1000,gid=1000 \
+    --mount=type=cache,target=/home/opam/.cache.dune,sharing=locked,uid=1000,gid=1000 \
     opam update && \
     opam install . --deps-only -y
 
