@@ -4,7 +4,6 @@ WORKDIR /home/opam/action
 
 COPY --chown=opam:opam *.opam dune-project ./
 
-
 FROM base AS builder
 
 RUN \
@@ -16,10 +15,6 @@ COPY bin bin
 COPY lib lib
 
 RUN opam exec -- dune build bin
-
-FROM scratch AS builder_workspace
-
-COPY --from=builder /home/opam/action /
 
 FROM base AS tester
 
@@ -34,13 +29,9 @@ COPY test test
 
 RUN opam exec -- dune build test
 
-FROM scratch AS tester_workspace
-
-COPY --from=tester /home/opam/action /
-
 FROM debian:12 AS runner
 
-WORKDIR /action
+WORKDIR /home/opam/action
 
 RUN mkdir -p /github/workspace
 
