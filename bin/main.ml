@@ -12,28 +12,26 @@ let run ~alcotest_input_path ~ctrf_output_path ~start_timestamp ~end_timestamp
   | First test_output -> (
       match Parser.Output.get_id test_output with
       | Second msg -> failwith msg
-      | First test_run_id -> (
+      | First test_run_id ->
           let test_run_name =
             match Parser.Output.get_name test_output with
             | First name -> name
             | Second _ -> "Test run"
           in
-          match Parser.Paths.get_test_logs_root_path test_run_id with
-          | Second err -> failwith err
-          | First test_log_root ->
-              let test_headlines =
-                Parser.Output.get_test_headlines test_output
-              in
-              let test_report =
-                Parser.Report.of_test_headlines ~name:test_run_name
-                  ~id:test_run_id ~start_timestamp ~end_timestamp
-                  ~version:alcotest_version test_headlines test_log_root
-              in
-              File.write_file ctrf_output_path
-                (Parser.Report.to_ctrf test_report
-                |> Root.to_yojson
-                |> Yojson.remove_nulls
-                |> Yojson.Safe.to_string)))
+          let test_log_root =
+            Parser.Paths.get_test_logs_root_path test_run_id
+          in
+          let test_headlines = Parser.Output.get_test_headlines test_output in
+          let test_report =
+            Parser.Report.of_test_headlines ~name:test_run_name ~id:test_run_id
+              ~start_timestamp ~end_timestamp ~version:alcotest_version
+              test_headlines test_log_root
+          in
+          File.write_file ctrf_output_path
+            (Parser.Report.to_ctrf test_report
+            |> Root.to_yojson
+            |> Yojson.remove_nulls
+            |> Yojson.Safe.to_string))
 
 let params =
   let open Command.Param in
