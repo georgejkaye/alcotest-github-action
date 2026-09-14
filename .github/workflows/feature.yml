@@ -47,9 +47,9 @@ jobs:
         docker run --rm \
           -u opam \
           -v ${{ github.workspace }}:/home/opam/workspace \
-          -w /home/opam/workspace \
+          -w /home/opam/action \
           tester \
-          /home/opam/action/_build/default/test/test.exe | tee test_results.txt
+          /home/opam/action/_build/default/test/test.exe | tee /home/opam/workspace/test_results.txt
 
     - name: Get testing end timestamp
       id: test-end-timestamp
