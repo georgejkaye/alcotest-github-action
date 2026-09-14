@@ -33,7 +33,11 @@ COPY test test
 
 RUN opam exec -- dune build test
 
-FROM debian:12 AS runner
+FROM debian:12-slim AS tester_export
+
+COPY --from=tester /home/opam/action/_build/default/test/test.exe /home/opam/action/test.exe
+
+FROM debian:12-slim AS runner
 
 WORKDIR /home/opam/action
 
