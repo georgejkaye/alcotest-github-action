@@ -4,8 +4,8 @@ WORKDIR /home/opam/action
 
 COPY --chown=opam:opam *.opam dune-project ./
 
-ENV DUNE_CACHE enabled
-ENV DUNE_CACHE_STORAGE_MODE copy
+ENV DUNE_CACHE=enabled
+ENV DUNE_CACHE_STORAGE_MODE=copy
 
 FROM base AS builder
 
