@@ -1,5 +1,5 @@
 group "default" {
-  targets = ["builder_export", "tester_export"]
+  targets = ["builder "tester"]
 }
 
 target "builder" {
