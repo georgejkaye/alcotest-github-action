@@ -25,7 +25,7 @@ jobs:
       uses: docker/bake-action@v7
       with:
         load: true
-        targets: tester_export
+        targets: builder_export,tester_export
         set: |
           tester_export.cache-from=type=gha,scope=opam-tester-cache
           tester_export.cache-to=type=gha,mode=max,scope=opam-tester-cache
