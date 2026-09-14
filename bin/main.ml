@@ -25,7 +25,7 @@ let run ~alcotest_input_path ~ctrf_output_path ~start_timestamp ~end_timestamp
           let test_report =
             Parser.Report.of_test_headlines ~name:test_run_name ~id:test_run_id
               ~start_timestamp ~end_timestamp ~version:alcotest_version
-              test_headlines test_log_root
+              ~log_root:test_log_root test_headlines
           in
           File.write_file ctrf_output_path
             (Parser.Report.to_ctrf test_report
