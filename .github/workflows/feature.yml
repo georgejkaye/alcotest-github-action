@@ -8,6 +8,10 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
+    env:
+      ALCOTEST_OUTPUT: ${{ github.workspace }}/test_results.txt
+      CTRF_OUTPUT: ${{ github.workspace }}/alcotest-ctrf.json
+
     steps:
     - name: Check out repo
       uses: actions/checkout@v7
@@ -49,7 +53,7 @@ jobs:
           -v ${{ github.workspace }}:/home/opam/workspace \
           -w /home/opam/action \
           tester \
-          /home/opam/action/_build/default/test/test.exe | tee ${{ github.workspace }}/test_results.txt
+          /home/opam/action/_build/default/test/test.exe | tee ${{ env.ALCOTEST_OUTPUT }}
 
     - name: Get testing end timestamp
       id: test-end-timestamp
@@ -61,15 +65,15 @@ jobs:
       uses: actions/upload-artifact@v7
       with:
           name: alcotest-raw
-          path: ${{ runner.temp }}/test-env/test_results.txt
+          path: ${{ env.ALCOTEST_OUTPUT }}
       if: success() || steps.run-tests.outcome == 'failure'
 
     - name: Process test output
       id: process-test-output
       uses: georgejkaye/alcotest-github-action@v2.8.0
       with:
-        alcotest-input-path: test_results.txt
-        ctrf-output-path: alcotest-ctrf.json
+        alcotest-input-path: ${{ env.ALCOTEST_OUTPUT }}
+        ctrf-output-path: ${{ env.CTRF_OUTPUT }}
         start-timestamp: ${{ steps.test-start-timestamp.outputs.timestamp }}
         end-timestamp:  ${{ steps.test-end-timestamp.outputs.timestamp }}
         alcotest-version: ${{ steps.alcotest-version.outputs.version }}
@@ -80,13 +84,13 @@ jobs:
       uses: actions/upload-artifact@v7
       with:
           name: alcotest-ctrf
-          path: alcotest-ctrf.json
+          path: ${{ env.CTRF_OUTPUT }}
       if: success() || steps.process-test-output.outcome == 'success'
 
     - name: Publish test report
       uses: ctrf-io/github-test-reporter@v1.3.0
       with:
-        report-path: alcotest-ctrf.json
+        report-path: ${{ env.CTRF_OUTPUT }}
         upload-artifact: true
         fetch-previous-results: true
         github-report: true
