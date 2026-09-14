@@ -1,5 +1,5 @@
 group "default" {
-  targets = ["builder "tester"]
+  targets = ["builder", "tester"]
 }
 
 target "builder" {
