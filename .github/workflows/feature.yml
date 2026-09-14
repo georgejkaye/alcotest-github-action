@@ -9,8 +9,8 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      ALCOTEST_OUTPUT: ${{ github.workspace }}/test_results.txt
-      CTRF_OUTPUT: ${{ github.workspace }}/alcotest-ctrf.json
+      ALCOTEST_OUTPUT: test_results.txt
+      CTRF_OUTPUT: alcotest-ctrf.json
 
     steps:
     - name: Check out repo
