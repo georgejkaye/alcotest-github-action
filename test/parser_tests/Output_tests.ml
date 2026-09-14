@@ -1,5 +1,5 @@
-open! Lib
 open! Core
+open! Lib
 module Output = Parser.Output
 
 module Output_helpers : sig
