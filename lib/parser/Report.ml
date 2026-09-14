@@ -32,7 +32,7 @@ let parse_test_log_content content =
   | log, Some trace -> (String.strip log, Some (String.strip trace))
 
 let of_test_headlines ~name ~id ~start_timestamp ~end_timestamp ~version
-    (ths : Headline.t list) log_root =
+    ~log_root (ths : Headline.t list) =
   List.fold (List.rev ths) ~init:(0, 0, 0, StringSet.empty, [])
     ~f:(fun (count, passed, failed, suites, acc) cur ->
       let log, trace =
