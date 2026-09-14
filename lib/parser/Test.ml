@@ -1,3 +1,4 @@
+open Ppx_compare_lib.Builtin
 open Util.Make
 
 type t = {
@@ -8,4 +9,4 @@ type t = {
   log : string;
   trace : string explicit_option;
 }
-[@@deriving show, make]
+[@@deriving show, make, equal]

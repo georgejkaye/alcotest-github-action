@@ -16,6 +16,7 @@ type t = {
   suites : int;
   tests : Test.t list;
 }
+[@@deriving show, make, equal]
 
 let get_test_log_content th log_root =
   let log_path = Headline.to_log_path th log_root in
