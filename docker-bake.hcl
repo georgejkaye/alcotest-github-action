@@ -1,5 +1,5 @@
 group "default" {
-  targets = ["builder", "tester"]
+  targets = ["builder_export", "tester_export"]
 }
 
 target "builder" {
@@ -8,8 +8,20 @@ target "builder" {
   target     = "builder"
 }
 
+target "builder_export" {
+  context    = "."
+  dockerfile = "Dockerfile"
+  target     = "builder_export"
+}
+
 target "tester" {
   context    = "."
   dockerfile = "Dockerfile"
   target     = "tester"
+}
+
+target "tester_export" {
+  context    = "."
+  dockerfile = "Dockerfile"
+  target     = "tester_export"
 }
