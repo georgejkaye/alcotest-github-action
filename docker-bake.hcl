@@ -1,7 +1,3 @@
-group "default" {
-  targets = ["builder_export", "tester_export"]
-}
-
 target "builder" {
   context    = "."
   dockerfile = "Dockerfile"
