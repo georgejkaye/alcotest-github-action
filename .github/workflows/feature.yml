@@ -20,6 +20,7 @@ jobs:
     - name: Build workspaces via Bake
       uses: docker/bake-action@v7
       with:
+        load: true
         set: |
           builder.cache-from=type=gha,scope=opam-builder-cache
           builder.cache-to=type=gha,mode=max,scope=opam-builder-cache
