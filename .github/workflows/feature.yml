@@ -54,12 +54,12 @@ jobs:
           -w /home/opam/action \
           tester \
           /home/opam/action/test.exe 2>&1 | tee ${{ env.ALCOTEST_OUTPUT }} ;\
-          sudo chown -R $(id -u):$(id -g) ${{ github.workspace }}/_build; \
-          ls -la --recursive ${{ github.workspace }}
 
-    - run: |
+    - name: Set permissions on test output
+      run: |
+        sudo chown -R $(id -u):$(id -g) ${{ github.workspace }}/_build
         ls --recursive ${{ github.workspace }}
-      if: always()
+      if: success() || failure()
 
     - name: Get testing end timestamp
       id: test-end-timestamp
