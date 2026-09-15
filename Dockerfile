@@ -35,7 +35,7 @@ RUN opam exec -- dune build test
 
 FROM debian:12-slim AS builder_export
 
-COPY --from=tester /home/opam/action/_build/default/bin/main.exe /home/opam/action/main.exe
+COPY --from=builder /home/opam/action/_build/default/bin/main.exe /home/opam/action/main.exe
 
 FROM debian:12-slim AS tester_export
 
