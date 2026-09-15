@@ -48,7 +48,7 @@ jobs:
     - name: Run tests
       id: run-tests
       run: |
-        set -o pipefail && \
+        set -o pipefail
         docker run --rm \
           -v ${{ github.workspace }}/_build:/home/opam/action/_build \
           -w /home/opam/action \
@@ -58,7 +58,6 @@ jobs:
     - name: Set permissions on test output
       run: |
         sudo chown -R $(id -u):$(id -g) ${{ github.workspace }}/_build
-        ls --recursive ${{ github.workspace }}
       if: success() || failure()
 
     - name: Get testing end timestamp
