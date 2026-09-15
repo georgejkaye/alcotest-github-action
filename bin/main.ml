@@ -5,8 +5,8 @@ open! Util.Json
 open! Util.Datetime
 module Root = Ctrf.Root.MakeWithNoExtras (Ctrf.Object.Empty) (Ctrf.Object.Empty)
 
-let run ~alcotest_input_path ~ctrf_output_path ~start_timestamp ~end_timestamp
-    ~alcotest_version =
+let run ~alcotest_input_path ~build_root_dir ~ctrf_output_path ~start_timestamp
+    ~end_timestamp ~alcotest_version =
   match File.read_file alcotest_input_path with
   | Second msg -> failwith msg
   | First test_output -> (
@@ -18,7 +18,10 @@ let run ~alcotest_input_path ~ctrf_output_path ~start_timestamp ~end_timestamp
             | First name -> name
             | Second _ -> "Test run"
           in
-          match Alcotest.Paths.get_test_logs_root_path test_run_id with
+          match
+            Alcotest.Paths.get_test_logs_root_path ~test_root_dir:build_root_dir
+              test_run_id
+          with
           | Second err -> failwith err
           | First test_log_root ->
               let test_headlines =
@@ -71,12 +74,18 @@ let command =
      and ctrf_output_path = anon ("test_summary_output_path" %: string)
      and start_timestamp = anon ("start_timestamp" %: string)
      and end_timestamp = anon ("end_timestamp" %: string)
-     and alcotest_version = anon ("alcotest_version" %: string) in
+     and alcotest_version = anon ("alcotest_version" %: string)
+     and build_root_dir = anon (maybe ("build_root_dir" %: string)) in
      fun () ->
        run
          ~alcotest_input_path:
            (path_of_string_arg_exn ~arg_name:"alcotest_input_path"
               alcotest_input_path_string)
+         ~build_root_dir:
+           (match build_root_dir with
+           | Some p ->
+               Some (path_of_string_arg_exn ~arg_name:"build_root_dir" p)
+           | None -> None)
          ~ctrf_output_path:
            (path_of_string_arg_exn ~arg_name:"test_summary_output_path"
               ctrf_output_path)
