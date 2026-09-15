@@ -55,6 +55,10 @@ jobs:
           tester \
           /home/opam/action/test.exe 2>&1 | tee ${{ env.ALCOTEST_OUTPUT }}
 
+    - run: |
+        ls --recursive ${{ github.workspace }}
+      if: always()
+
     - name: Get testing end timestamp
       id: test-end-timestamp
       run: echo "timestamp=$(date '+%Y-%m-%dT%H:%M:%S')" >> "$GITHUB_OUTPUT"
