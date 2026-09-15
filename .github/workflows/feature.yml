@@ -27,6 +27,9 @@ jobs:
         load: true
         targets: builder_export,tester_export
         set: |
+          build_export.cache-from=type=gha,scope=opam-builder-cache
+          build_export.cache-to=type=gha,mode=max,scope=opam-builder-cache
+          build_export.tags=tester
           tester_export.cache-from=type=gha,scope=opam-tester-cache
           tester_export.cache-to=type=gha,mode=max,scope=opam-tester-cache
           tester_export.tags=tester
