@@ -45,6 +45,7 @@ jobs:
     - name: Run tests
       id: run-tests
       run: |
+        set -o pipefail && \
         docker run --rm \
           -v ${{ github.workspace }}:/home/opam/workspace \
           -w /home/opam/action \
