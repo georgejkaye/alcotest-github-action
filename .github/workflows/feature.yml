@@ -53,7 +53,7 @@ jobs:
           -v ${{ github.workspace }}/_build:/home/opam/action/_build \
           -w /home/opam/action \
           tester \
-          /home/opam/action/test.exe 2>&1 | tee ${{ env.ALCOTEST_OUTPUT }} && \
+          /home/opam/action/test.exe 2>&1 | tee ${{ env.ALCOTEST_OUTPUT }} ;\
           sudo chown -R $(id -u):$(id -g) ${{ github.workspace }}/_build
 
     - run: |
