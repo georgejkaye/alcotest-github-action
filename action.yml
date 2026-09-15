@@ -17,6 +17,9 @@ inputs:
   alcotest-version:
     description: The version of Alcotest testing was run with
     required: false
+  build-root-test:
+    description: The path to the _build directory containing the _tests directory with output logs
+    required: false
 runs:
   using: docker
   image: docker://georgejkaye/alcotest-github-action:v2.8.2
@@ -26,3 +29,4 @@ runs:
     - ${{ inputs.start-timestamp }}
     - ${{ inputs.end-timestamp }}
     - ${{ inputs.alcotest-version }}
+    - ${{ inputs.build-root-test }}
