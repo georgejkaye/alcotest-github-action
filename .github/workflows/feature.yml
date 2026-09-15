@@ -47,7 +47,7 @@ jobs:
       run: |
         set -o pipefail && \
         docker run --rm \
-          -v ${{ github.workspace }}/_build:/home/opam/action/_build
+          -v ${{ github.workspace }}:/home/opam/action
           -w /home/opam/action \
           tester \
           /home/opam/action/test.exe 2>&1 | tee ${{ env.ALCOTEST_OUTPUT }}
