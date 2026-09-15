@@ -11,7 +11,7 @@ FROM base AS builder
 
 RUN \
     --mount=type=cache,target=/home/opam/.opam/download-cache,sharing=locked,uid=1000,gid=1000 \
-    --mount=type=cache,target=/home/opam/.cache.dune,sharing=locked,uid=1000,gid=1000 \
+    --mount=type=cache,target=/home/opam/.cache/dune,sharing=locked,uid=1000,gid=1000 \
     opam update && \
     opam install . --deps-only -y
 
@@ -24,6 +24,7 @@ FROM base AS tester
 
 RUN \
     --mount=type=cache,target=/home/opam/.opam/download-cache,sharing=locked,uid=1000,gid=1000 \
+    --mount=type=cache,target=/home/opam/.cache/dune,sharing=locked,uid=1000,gid=1000 \
     opam update && \
     opam install . --deps-only --with-test -y
 
