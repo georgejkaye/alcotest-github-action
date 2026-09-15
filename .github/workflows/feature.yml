@@ -50,13 +50,11 @@ jobs:
       run: |
         set -o pipefail && \
         docker run --rm \
-          --user $(id -u):$(id -g) \
           -v ${{ github.workspace }}/_build:/home/opam/action/_build \
           -w /home/opam/action \
-          -e HOST_UID=$(id -u) \
-          -e HOST_GID=$(id -g) \
           tester \
-          /home/opam/action/test.exe 2>&1 | tee ${{ env.ALCOTEST_OUTPUT }}
+          /home/opam/action/test.exe 2>&1 | tee ${{ env.ALCOTEST_OUTPUT }} && \
+          sudo chown -R $(id -u):$(id -g) ${{ github.workspace }}/_build
 
     - run: |
         ls --recursive ${{ github.workspace }}
