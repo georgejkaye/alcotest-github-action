@@ -29,7 +29,7 @@ jobs:
         set: |
           builder_export.cache-from=type=gha,scope=opam-builder-cache
           builder_export.cache-to=type=gha,mode=max,scope=opam-builder-cache
-          builder_export.tags=tester
+          builder_export.tags=builder
           tester_export.cache-from=type=gha,scope=opam-tester-cache
           tester_export.cache-to=type=gha,mode=max,scope=opam-tester-cache
           tester_export.tags=tester
