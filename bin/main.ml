@@ -84,7 +84,8 @@ let command =
          ~build_root_dir:
            (match build_root_dir with
            | Some p ->
-               Some (path_of_string_arg_exn ~arg_name:"build_root_dir" p)
+               if String.is_empty p then None
+               else Some (path_of_string_arg_exn ~arg_name:"build_root_dir" p)
            | None -> None)
          ~ctrf_output_path:
            (path_of_string_arg_exn ~arg_name:"test_summary_output_path"
