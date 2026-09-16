@@ -11,9 +11,22 @@ let get_test_logs_root_path () =
   Alcotest.check Helpers.Testable.string "get_test_logs_root_path" expected
     (Fpath.to_string result)
 
+let get_test_logs_root_path_custom_root_path () =
+  let test_run_id = "123456" in
+  let build_root_path = Fpath.v "/custom/root/path/_build" in
+  let expected = {%string|/custom/root/path/_build/_tests/%{test_run_id}|} in
+  let result =
+    Paths.get_test_logs_root_path test_run_id
+      ~test_root_dir:(Some build_root_path)
+  in
+  Alcotest.check Helpers.Testable.string "get_test_logs_root_path" expected
+    (Fpath.to_string result)
+
 let tests =
   ( "Parser.Paths",
     [
       Alcotest.test_case "get_test_logs_root_path" `Quick
         get_test_logs_root_path;
+      Alcotest.test_case "get_test_logs_root_path_custom_root_path" `Quick
+        get_test_logs_root_path_custom_root_path;
     ] )
