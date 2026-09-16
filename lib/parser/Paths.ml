@@ -2,7 +2,7 @@ open! Core
 
 let default_test_root =
   let open Fpath in
-  Fpath.v "." / "_build" / "default" / "test"
+  Fpath.v "." / "_build" / "default" / "test" / "_build"
 
 let get_test_logs_root_path ?(test_root_dir = None) test_run_id =
   let open Fpath in
