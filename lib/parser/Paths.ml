@@ -9,4 +9,4 @@ let get_test_logs_root_path ?(test_root_dir = None) test_run_id =
   let test_root_dir =
     match test_root_dir with Some d -> d | None -> default_test_root
   in
-  First (test_root_dir / "_tests" / test_run_id)
+  test_root_dir / "_tests" / test_run_id
