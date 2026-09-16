@@ -74,6 +74,7 @@ jobs:
       if: success() || steps.run-tests.outcome == 'failure'
 
     - run: ls -Rla
+      if: always()
 
     - name: Process test output
       id: process-test-output
