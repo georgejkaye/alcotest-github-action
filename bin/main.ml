@@ -19,8 +19,7 @@ let run ~alcotest_input_path ~build_root_dir ~ctrf_output_path ~start_timestamp
             | Second _ -> "Test run"
           in
           let test_log_root =
-            Parser.Paths.get_test_logs_root_path ~test_root_dir:build_root_dir
-              test_run_id
+            Parser.Paths.get_test_logs_root_path ~build_root_dir test_run_id
           in
           let test_headlines = Parser.Output.get_test_headlines test_output in
           let test_report =
