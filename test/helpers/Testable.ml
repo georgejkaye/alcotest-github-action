@@ -17,4 +17,9 @@ let either at bt =
 
 let list at = Alcotest.(list at)
 let headline = Alcotest.testable Parser.Headline.pp Parser.Headline.equal
-let report = Alcotest.testable Parser.Report.pp Parser.Report.equal
+
+module Report (F : Lib.Util.Wrapper.File_wrapper.Interface) = struct
+  module Report = Lib.Parser.Report.Make (F)
+
+  let report = Alcotest.testable Report.pp Report.equal
+end
