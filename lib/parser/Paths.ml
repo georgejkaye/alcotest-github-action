@@ -4,9 +4,9 @@ let default_test_root =
   let open Fpath in
   Fpath.v "." / "_build" / "default" / "test" / "_build"
 
-let get_test_logs_root_path ?(test_root_dir = None) test_run_id =
+let get_test_logs_root_path ?(build_root_dir = None) test_run_id =
   let open Fpath in
-  let test_root_dir =
-    match test_root_dir with Some d -> d | None -> default_test_root
+  let build_root_dir =
+    match build_root_dir with Some d -> d | None -> default_test_root
   in
-  test_root_dir / "_tests" / test_run_id
+  build_root_dir / "_tests" / test_run_id
