@@ -1,37 +1,8 @@
 open Core
-open Lib
 open Fpath
-open! Util.Json
-open! Util.Datetime
-module Root = Ctrf.Root.MakeWithNoExtras (Ctrf.Object.Empty) (Ctrf.Object.Empty)
-
-let run ~alcotest_input_path ~build_root_dir ~ctrf_output_path ~start_timestamp
-    ~end_timestamp ~alcotest_version =
-  match File.read_file alcotest_input_path with
-  | Second msg -> failwith msg
-  | First test_output -> (
-      match Parser.Output.get_id test_output with
-      | Second msg -> failwith msg
-      | First test_run_id ->
-          let test_run_name =
-            match Parser.Output.get_name test_output with
-            | First name -> name
-            | Second _ -> "Test run"
-          in
-          let test_log_root =
-            Parser.Paths.get_test_logs_root_path ~build_root_dir test_run_id
-          in
-          let test_headlines = Parser.Output.get_test_headlines test_output in
-          let test_report =
-            Parser.Report.of_test_headlines ~name:test_run_name ~id:test_run_id
-              ~start_timestamp ~end_timestamp ~version:alcotest_version
-              ~log_root:test_log_root test_headlines
-          in
-          File.write_file ctrf_output_path
-            (Parser.Report.to_ctrf test_report
-            |> Root.to_yojson
-            |> Yojson.remove_nulls
-            |> Yojson.Safe.to_string))
+open! Lib.Util.Datetime
+module File_wrapper = Lib.Util.Wrapper.File_wrapper.System
+module Process = Lib.Process.Make (File_wrapper)
 
 let params =
   let open Command.Param in
@@ -72,21 +43,24 @@ let command =
      and alcotest_version = anon ("alcotest_version" %: string)
      and build_root_dir = anon (maybe ("build_root_dir" %: string)) in
      fun () ->
-       run
-         ~alcotest_input_path:
-           (path_of_string_arg_exn ~arg_name:"alcotest_input_path"
-              alcotest_input_path_string)
-         ~build_root_dir:
-           (match build_root_dir with
-           | Some p ->
-               if String.is_empty p then None
-               else Some (path_of_string_arg_exn ~arg_name:"build_root_dir" p)
-           | None -> None)
-         ~ctrf_output_path:
-           (path_of_string_arg_exn ~arg_name:"test_summary_output_path"
-              ctrf_output_path)
-         ~start_timestamp:(datetime_of_string_arg_exn start_timestamp)
-         ~end_timestamp:(datetime_of_string_arg_exn end_timestamp)
-         ~alcotest_version)
+       let _ =
+         Process.run File_wrapper.init_state
+           ~alcotest_input_path:
+             (path_of_string_arg_exn ~arg_name:"alcotest_input_path"
+                alcotest_input_path_string)
+           ~build_root_dir:
+             (match build_root_dir with
+             | Some p ->
+                 if String.is_empty p then None
+                 else Some (path_of_string_arg_exn ~arg_name:"build_root_dir" p)
+             | None -> None)
+           ~ctrf_output_path:
+             (path_of_string_arg_exn ~arg_name:"test_summary_output_path"
+                ctrf_output_path)
+           ~start_timestamp:(datetime_of_string_arg_exn start_timestamp)
+           ~end_timestamp:(datetime_of_string_arg_exn end_timestamp)
+           ~alcotest_version
+       in
+       ())
 
 let () = Command_unix.run ~version:"1.0" command
