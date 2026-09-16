@@ -78,7 +78,7 @@ jobs:
 
     - name: Process test output
       id: process-test-output
-      uses: georgejkaye/alcotest-github-action@v2.9.1
+      uses: georgejkaye/alcotest-github-action@v2.9.2
       with:
         alcotest-input-path: ${{ env.ALCOTEST_OUTPUT }}
         ctrf-output-path: ${{ env.CTRF_OUTPUT }}
