@@ -84,7 +84,7 @@ jobs:
         start-timestamp: ${{ steps.test-start-timestamp.outputs.timestamp }}
         end-timestamp:  ${{ steps.test-end-timestamp.outputs.timestamp }}
         alcotest-version: ${{ steps.alcotest-version.outputs.version }}
-        build-root-path: /home/opam/action/_build
+        build-root-path: _build
       if: success() || steps.upload-test-output.outcome == 'success'
 
     - name: Upload test results artifact
