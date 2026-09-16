@@ -38,8 +38,8 @@ jobs:
       id: alcotest-version
       run: |
         docker run --rm \
+          -w /home/opam/action \
           tester \
-          -w /home/opam/action
           echo "version=$(cat alcotest_version.txt)" >> "$GITHUB_OUTPUT"
 
     - name: Get testing start timestamp
