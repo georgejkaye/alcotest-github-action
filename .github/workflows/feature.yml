@@ -35,7 +35,7 @@ jobs:
           tester_export.tags=tester
 
     - run: |
-        docker run --rm -w /home/opam/action tester ls
+        docker run --rm -w /home/opam/action tester ls -la
 
     - name: Get Alcotest version
       id: alcotest-version
