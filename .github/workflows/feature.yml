@@ -34,6 +34,9 @@ jobs:
           tester_export.cache-to=type=gha,mode=max,scope=opam-tester-cache
           tester_export.tags=tester
 
+    - run: |
+        docker run --rm -w /home/opam/action tester ls
+
     - name: Get Alcotest version
       id: alcotest-version
       run: |
@@ -73,9 +76,6 @@ jobs:
           name: alcotest-raw
           path: ${{ env.ALCOTEST_OUTPUT }}
       if: success() || steps.run-tests.outcome == 'failure'
-
-    - run: ls -Rla
-      if: always()
 
     - name: Process test output
       id: process-test-output
