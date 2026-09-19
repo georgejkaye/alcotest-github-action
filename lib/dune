@@ -1,5 +1,3 @@
-(include_subdirs qualified)
-
 (library
  (name lib)
  (preprocess
@@ -18,4 +16,8 @@
   fpath
   re
   uuidm
-  yojson))
+  yojson)
+ (instrumentation
+  (backend bisect_ppx_ng)))
+
+(include_subdirs qualified)

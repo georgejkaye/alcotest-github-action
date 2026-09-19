@@ -32,6 +32,7 @@
   uuidm
   yojson
   (alcotest :with-test)
+  (bisect_ppx_ng :with-test)
   (fmt :with-test))
  (tags
   ("alcotest" "github actions" "ci" "testing")))
