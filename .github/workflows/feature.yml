@@ -52,9 +52,21 @@ jobs:
         set -o pipefail
         docker run --rm \
           -v ${{ github.workspace }}/_build:/home/opam/action/_build \
+          -v ${{ github.workspace }}/_coverage:/home/opam/action/_coverage \
           -w /home/opam/action \
           tester \
-          /home/opam/action/test.exe 2>&1 | tee ${{ env.ALCOTEST_OUTPUT }} ;\
+          sh -c '
+            /home/opam/action/test.exe 2>&1 | tee ${{ env.ALCOTEST_OUTPUT }}
+            /home/opam/action/bisect-ppx-report html
+          '
+
+    - name: Upload runtest coverage artifact
+      id: upload-coverage-output
+      uses: actions/upload-artifact@v7
+      with:
+          name: _coverage
+          path: coverage
+      if: success() || steps.run-tests.outcome == 'failure'
 
     - name: Set permissions on test output
       run: |
