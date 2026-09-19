@@ -59,7 +59,7 @@ jobs:
     - name: Set permissions on test output
       run: |
         sudo chown -R $(id -u):$(id -g) ${{ github.workspace }}/_build
-      if: success() || failure()
+      if: success() || steps.run-tests.outcome == 'failure'
 
     - name: Get testing end timestamp
       id: test-end-timestamp
