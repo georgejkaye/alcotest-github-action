@@ -68,8 +68,6 @@ jobs:
           path: _coverage
       if: success() || steps.run-tests.outcome == 'failure'
 
-    - run: ls -Rla
-
     - name: Set permissions on test output
       run: |
         sudo chown -R $(id -u):$(id -g) ${{ github.workspace }}/_build
