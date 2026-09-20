@@ -60,6 +60,8 @@ jobs:
             /home/opam/action/bisect-ppx-report html
           '
 
+    - run: ls -Rla
+
     - name: Upload runtest coverage artifact
       id: upload-coverage-output
       uses: actions/upload-artifact@v7
