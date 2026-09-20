@@ -7,16 +7,13 @@ let test_headline_regex =
   Util.Regex.get_regex
     "(?:>| ) (?:\\[(OK)\\]  |\\[(FAIL)\\])        (.*?) ([0-9]+)   (.*)\\."
 
-let get_data ~regex ~summary test_output =
-  match Re.exec_opt regex test_output with
-  | None -> Second [%string "Could not find %{summary}"]
-  | Some m -> First (Re.Group.get m 1)
-
 let get_name =
-  get_data ~regex:test_run_name_regex ~summary:"Testing `(name)'. line"
+  Util.Regex.get_regex_match ~regex:test_run_name_regex
+    ~summary:"Testing `(name)'. line"
 
 let get_id =
-  get_data ~regex:test_run_id_regex ~summary:"This run has ID `(id)'. line"
+  Util.Regex.get_regex_match ~regex:test_run_id_regex
+    ~summary:"This run has ID `(id)'. line"
 
 let get_test_headlines test_output =
   let lines = String.split_lines test_output in
