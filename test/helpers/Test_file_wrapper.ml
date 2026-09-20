@@ -88,10 +88,13 @@ let file_system_action root path ~f ~create =
 
 let init_state = { name = ""; contents = Directory [] }
 
+let append_child parent seg =
+  match parent with Some p -> p / seg | None -> Fpath.v seg
+
 let get_file state p =
   match
     file_system_action state p ~create:false ~f:(fun parent f ->
-        ((Util.Path.append_child parent f.name, f), Some f))
+        ((append_child parent f.name, f), Some f))
   with
   | Some f, _ -> Some f
   | None, _ -> None
@@ -129,9 +132,7 @@ let files_of_directory state ?(filter = fun _ -> true) ?(recurse = false) p =
               let rec files_of_directory' parent files =
                 List.rev
                   (List.fold_right files ~init:[] ~f:(fun file acc ->
-                       let full_path =
-                         Util.Path.append_child parent file.name
-                       in
+                       let full_path = append_child parent file.name in
                        if not (filter full_path) then acc
                        else
                          let acc = full_path :: acc in
