@@ -37,3 +37,5 @@ _opam/
 
 # Testing output
 alcotest.json
+*.coverage
+_coverage
