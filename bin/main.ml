@@ -2,7 +2,9 @@ open Core
 open Fpath
 open! Lib.Util.Datetime
 module File_wrapper = Lib.Util.Wrapper.File_wrapper.System
-module Process = Lib.Process.Make (File_wrapper)
+module Uuid_wrapper = Lib.Util.Wrapper.Uuid_wrapper.UuidV4
+module Env_wrapper = Lib.Util.Wrapper.Env_wrapper.System
+module Process = Lib.Process.Make (File_wrapper) (Uuid_wrapper) (Env_wrapper)
 
 let params =
   let open Command.Param in
@@ -44,7 +46,7 @@ let command =
      and build_root_dir = anon (maybe ("build_root_dir" %: string)) in
      fun () ->
        let _ =
-         Process.run File_wrapper.init_state
+         Process.run ~fs:File_wrapper.init_state ~env:Env_wrapper.v
            ~alcotest_input_path:
              (path_of_string_arg_exn ~arg_name:"alcotest_input_path"
                 alcotest_input_path_string)

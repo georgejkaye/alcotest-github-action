@@ -1,14 +1,18 @@
-module Make (F : Util.Wrapper.File_wrapper.Interface) = struct
+module Make
+    (File : Util.Wrapper.File_wrapper.Interface)
+    (Uuid : Util.Wrapper.Uuid_wrapper.Interface)
+    (Env : Util.Wrapper.Env_wrapper.Interface) =
+struct
   open! Util.Json
 
   module Root =
     Ctrf.Root.MakeWithNoExtras (Ctrf.Object.Empty) (Ctrf.Object.Empty)
 
-  module Report = Parser.Report.Make (F)
+  module Report = Parser.Report.Make (File) (Uuid) (Env)
 
-  let run fs ~alcotest_input_path ~build_root_dir ~ctrf_output_path
+  let run ~fs ~env ~alcotest_input_path ~build_root_dir ~ctrf_output_path
       ~start_timestamp ~end_timestamp ~alcotest_version =
-    match F.read_file fs alcotest_input_path with
+    match File.read_file fs alcotest_input_path with
     | Second msg -> failwith msg
     | First test_output -> (
         match Parser.Output.get_id test_output with
@@ -28,9 +32,9 @@ module Make (F : Util.Wrapper.File_wrapper.Interface) = struct
                 ~start_timestamp ~end_timestamp ~version:alcotest_version
                 ~log_root:test_log_root test_headlines
             in
-            F.write_file fs ~path:ctrf_output_path
+            File.write_file fs ~path:ctrf_output_path
               ~contents:
-                (Report.to_ctrf test_report
+                (Report.to_ctrf test_report ~env
                 |> Root.to_yojson
                 |> Yojson.remove_nulls
                 |> Yojson.Safe.to_string))

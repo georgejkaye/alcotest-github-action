@@ -1,4 +1,7 @@
-module Make (F : Util.Wrapper.File_wrapper.Interface) : sig
+module Make
+    (File : Util.Wrapper.File_wrapper.Interface)
+    (Uuid : Util.Wrapper.Uuid_wrapper.Interface)
+    (Env : Util.Wrapper.Env_wrapper.Interface) : sig
   type t
 
   val make :
@@ -20,7 +23,7 @@ module Make (F : Util.Wrapper.File_wrapper.Interface) : sig
   val equal : t -> t -> bool
 
   val of_test_headlines :
-    F.t ->
+    File.t ->
     name:string ->
     id:string ->
     start_timestamp:Time_float_unix.t ->
@@ -34,10 +37,9 @@ module Make (F : Util.Wrapper.File_wrapper.Interface) : sig
       module type of
         Ctrf.Root.MakeWithNoExtras (Ctrf.Object.Empty) (Ctrf.Object.Empty)
 
-  val to_ctrf : t -> Root.t
+  val to_ctrf : t -> env:Env.t -> Root.t
 end = struct
   open! Core
-  open Core_unix
   open Yojson
   open! Util.Datetime
   open! Util.String
@@ -58,7 +60,7 @@ end = struct
 
   let get_test_log_content fs th log_root =
     let log_path = Headline.to_log_path th log_root in
-    match F.read_file fs log_path with
+    match File.read_file fs log_path with
     | Second msg -> msg
     | First content -> content
 
@@ -122,36 +124,38 @@ end = struct
           ~suite:(String.split ~on:'.' test.suite)
           ~message:test.log () ~trace:test.trace)
 
-  let to_ctrf_environment report =
+  let to_ctrf_environment ~env report =
     let get_workflow_url =
-      let server_url = Sys.getenv_exn "GITHUB_SERVER_URL" in
-      let repo = Sys.getenv_exn "GITHUB_REPOSITORY" in
-      let run_id = Sys.getenv_exn "GITHUB_RUN_ID" in
+      let server_url = Env.getenv_exn env "GITHUB_SERVER_URL" in
+      let repo = Env.getenv_exn env "GITHUB_REPOSITORY" in
+      let run_id = Env.getenv_exn env "GITHUB_RUN_ID" in
       [%string "%{server_url}/%{repo}/actions/runs/%{run_id}"]
     in
     Root.Results.Environment.make
-      ~appName:(Sys.getenv_exn "GITHUB_REPOSITORY")
-      ~buildId:(Sys.getenv_exn "GITHUB_RUN_ID")
-      ~buildName:(Sys.getenv_exn "GITHUB_WORKFLOW")
-      ~buildNumber:(Sys.getenv_exn "GITHUB_RUN_NUMBER" |> Int.of_string)
+      ~appName:(Env.getenv_exn env "GITHUB_REPOSITORY")
+      ~buildId:(Env.getenv_exn env "GITHUB_RUN_ID")
+      ~buildName:(Env.getenv_exn env "GITHUB_WORKFLOW")
+      ~buildNumber:(Env.getenv_exn env "GITHUB_RUN_NUMBER" |> Int.of_string)
       ~buildUrl:get_workflow_url
-      ~commit:(Sys.getenv_exn "GITHUB_SHA")
-      ~branchName:(Sys.getenv_exn "GITHUB_REF")
-      ~osPlatform:(Sys.getenv_exn "RUNNER_OS")
+      ~commit:(Env.getenv_exn env "GITHUB_SHA")
+      ~branchName:(Env.getenv_exn env "GITHUB_REF")
+      ~osPlatform:(Env.getenv_exn env "RUNNER_OS")
       ()
 
-  let to_ctrf_results report =
+  let to_ctrf_results ~env report =
     Root.Results.make ~tool:(to_ctrf_tool report)
       ~summary:(to_ctrf_summary report) ~tests:(to_ctrf_tests report)
-      ~environment:(to_ctrf_environment report)
+      ~environment:(to_ctrf_environment ~env report)
 
-  let to_ctrf tr =
+  let to_ctrf tr ~env =
     Root.make ~reportFormat:"CTRF" ~specVersion:"0.0.0"
-      ~reportId:Util.Uuid.get_string
+      ~reportId:(Uuid.get_uuid_string ())
       ~timestamp:(Time_float_unix.to_string tr.start_timestamp)
       ~generatedBy:"alcotest-github-action"
       ~results:
         (Root.Results.make ~tool:(to_ctrf_tool tr) ~summary:(to_ctrf_summary tr)
-           ~tests:(to_ctrf_tests tr) ~environment:(to_ctrf_environment tr) ())
+           ~tests:(to_ctrf_tests tr)
+           ~environment:(to_ctrf_environment ~env tr)
+           ())
       ()
 end
