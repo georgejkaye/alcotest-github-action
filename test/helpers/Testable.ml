@@ -23,3 +23,7 @@ module Report (F : Lib.Util.Wrapper.File_wrapper.Interface) = struct
 
   let report = Alcotest.testable Report.pp Report.equal
 end
+
+module Root = Ctrf.Root.MakeWithNoExtras (Ctrf.Object.Empty) (Ctrf.Object.Empty)
+
+let root_with_no_extras = Alcotest.testable Root.pp Root.equal
