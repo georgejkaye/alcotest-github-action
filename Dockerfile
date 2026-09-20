@@ -45,6 +45,8 @@ COPY --from=builder /home/opam/action/_build/default/bin/main.exe /home/opam/act
 
 FROM debian:12-slim AS tester_export
 
+COPY --from=tester /home/opam/action/bin /home/opam/action/bin
+COPY --from=tester /home/opam/action/lib /home/opam/action/lib
 COPY --from=tester /home/opam/action/test /home/opam/action/test
 COPY --from=tester /home/opam/action/_build/default/test/test.exe /home/opam/action/test.exe
 COPY --from=tester /home/opam/.opam/5.5/bin/bisect-ppx-report /home/opam/action/bisect-ppx-report
