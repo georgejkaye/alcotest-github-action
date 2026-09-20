@@ -116,7 +116,7 @@ jobs:
       id: process-test-output
       uses: georgejkaye/alcotest-github-action@v2.9.2
       with:
-        alcotest-input-path: _output/${{ env.ALCOTEST_OUTPUT }}
+        alcotest-input-path: ${{ env.ALCOTEST_OUTPUT }}
         ctrf-output-path: ${{ env.CTRF_OUTPUT }}
         start-timestamp: ${{ steps.test-start-timestamp.outputs.timestamp }}
         end-timestamp:  ${{ steps.test-end-timestamp.outputs.timestamp }}
