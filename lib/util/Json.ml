@@ -12,6 +12,10 @@ module Yojson = struct
                | `Null -> acc
                | json -> (key, remove_nulls json) :: acc)
           |> List.rev)
-    | `List jsons -> `List (List.map jsons ~f:remove_nulls)
+    | `List jsons ->
+        `List
+          (List.fold jsons ~init:[] ~f:(fun acc json ->
+               match json with `Null -> acc | json -> remove_nulls json :: acc)
+          |> List.rev)
     | json -> json
 end
