@@ -10,4 +10,5 @@ let getenv_exn env key =
   | Some result -> result
   | None -> raise Stdlib.Not_found
 
-let add_env_variable ~env = List.Assoc.add env ~equal:String.equal
+let add_env_variable env ~key ~value =
+  List.Assoc.add env ~equal:String.equal key value
