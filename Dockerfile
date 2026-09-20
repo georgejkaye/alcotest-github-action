@@ -32,7 +32,7 @@ COPY bin bin
 COPY lib lib
 COPY test test
 
-RUN opam exec -- dune build test/test.exe
+RUN opam exec -- dune build --instrument-with bisect_ppx_ng test/test.exe
 
 RUN \
     opam info alcotest --color=never | \
