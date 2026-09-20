@@ -76,42 +76,6 @@ jobs:
           path: ${{ env.ALCOTEST_OUTPUT }}
       if: success() || steps.run-tests.outcome == 'failure'
 
-    - name: Run test coverage
-      id: run-test-coverage
-      run: |
-        set -o pipefail
-        docker run --rm \
-          -v ${{ github.workspace }}/_build:/home/opam/action/_build \
-          -v ${{ github.workspace }}/_output:/home/opam/action/_output \
-          -w /home/opam/action \
-          tester \
-          /home/opam/action/bisect-ppx-report covertura ${{ env.COVERAGE_OUTPUT }}
-      if: success() || steps.run-tests.outcome == 'failure'
-
-    - name: Upload coverage artifact
-      id: upload-coverage-output
-      uses: actions/upload-artifact@v7
-      with:
-          name: coverage.cobertura.xml
-          path: ${{ env.COVERAGE_OUTPUT }}
-      if: success() || steps.run-tests.outcome == 'failure'
-
-    - name: Generate test coverage report
-      uses: irongut/CodeCoverageSummary@v1.3.0
-      with:
-        filename: ${{ env.COVERAGE_OUTPUT }}
-        badge: true
-        format: markdown
-        output: both
-      if: success() || steps.run-tests.outcome == 'failure'
-
-    - name: Add code coverage report to job summary
-      run: |
-        echo "# Test coverage" >> $GITHUB_STEP_SUMMARY
-        echo >> $GITHUB_STEP_SUMMARY
-        cat code-coverage-results.md >> $GITHUB_STEP_SUMMARY
-      if: success() || steps.run-tests.outcome == 'failure'
-
     - name: Process test output
       id: process-test-output
       uses: georgejkaye/alcotest-github-action@v2.9.2
@@ -148,3 +112,39 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       if: success() || steps.upload-test-ctrf.outcome == 'success'
+
+    - name: Run test coverage
+      id: run-test-coverage
+      run: |
+        set -o pipefail
+        docker run --rm \
+          -v ${{ github.workspace }}/_build:/home/opam/action/_build \
+          -v ${{ github.workspace }}/_output:/home/opam/action/_output \
+          -w /home/opam/action \
+          tester \
+          /home/opam/action/bisect-ppx-report covertura ${{ env.COVERAGE_OUTPUT }}
+      if: success() || steps.run-tests.outcome == 'failure'
+
+    - name: Upload coverage artifact
+      id: upload-coverage-output
+      uses: actions/upload-artifact@v7
+      with:
+          name: coverage.cobertura.xml
+          path: ${{ env.COVERAGE_OUTPUT }}
+      if: success() || steps.run-tests.outcome == 'failure'
+
+    - name: Generate test coverage report
+      uses: irongut/CodeCoverageSummary@v1.3.0
+      with:
+        filename: ${{ env.COVERAGE_OUTPUT }}
+        badge: true
+        format: markdown
+        output: both
+      if: success() || steps.run-tests.outcome == 'failure'
+
+    - name: Add code coverage report to job summary
+      run: |
+        echo "# Test coverage" >> $GITHUB_STEP_SUMMARY
+        echo >> $GITHUB_STEP_SUMMARY
+        cat code-coverage-results.md >> $GITHUB_STEP_SUMMARY
+      if: success() || steps.run-tests.outcome == 'failure'
