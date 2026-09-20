@@ -142,10 +142,11 @@ end = struct
       ~osPlatform:(Env.getenv_exn env "RUNNER_OS")
       ()
 
-  let to_ctrf_results ~env report =
+  let to_ctrf_results report ~env =
     Root.Results.make ~tool:(to_ctrf_tool report)
       ~summary:(to_ctrf_summary report) ~tests:(to_ctrf_tests report)
       ~environment:(to_ctrf_environment ~env report)
+      ()
 
   let to_ctrf tr ~env =
     Root.make ~reportFormat:"CTRF" ~specVersion:"0.0.0"
@@ -153,11 +154,6 @@ end = struct
       ~timestamp:
         (Time_float_unix.format tr.start_timestamp "%Y-%m-%dT%H:%M:%S"
            ~zone:Time_float_unix.Zone.utc)
-      ~generatedBy:"alcotest-github-action"
-      ~results:
-        (Root.Results.make ~tool:(to_ctrf_tool tr) ~summary:(to_ctrf_summary tr)
-           ~tests:(to_ctrf_tests tr)
-           ~environment:(to_ctrf_environment ~env tr)
-           ())
+      ~generatedBy:"alcotest-github-action" ~results:(to_ctrf_results tr ~env)
       ()
 end
