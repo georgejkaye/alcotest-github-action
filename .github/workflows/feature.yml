@@ -53,10 +53,11 @@ jobs:
         docker run --rm \
           -v ${{ github.workspace }}/_build:/home/opam/action/_build \
           -v ${{ github.workspace }}/_coverage:/home/opam/action/_coverage \
+          -v ${{ github.workspace }}/_output:/home/opam/action/_output \
           -w /home/opam/action \
           tester \
           sh -c '
-            /home/opam/action/test.exe 2>&1 | tee ${{ env.ALCOTEST_OUTPUT }}
+            /home/opam/action/test.exe 2>&1 | tee _output/${{ env.ALCOTEST_OUTPUT }}
             /home/opam/action/bisect-ppx-report html
           '
 
@@ -83,14 +84,14 @@ jobs:
       uses: actions/upload-artifact@v7
       with:
           name: alcotest-raw
-          path: ${{ env.ALCOTEST_OUTPUT }}
+          path: _output/${{ env.ALCOTEST_OUTPUT }}
       if: success() || steps.run-tests.outcome == 'failure'
 
     - name: Process test output
       id: process-test-output
       uses: georgejkaye/alcotest-github-action@v2.9.2
       with:
-        alcotest-input-path: ${{ env.ALCOTEST_OUTPUT }}
+        alcotest-input-path: _output/${{ env.ALCOTEST_OUTPUT }}
         ctrf-output-path: ${{ env.CTRF_OUTPUT }}
         start-timestamp: ${{ steps.test-start-timestamp.outputs.timestamp }}
         end-timestamp:  ${{ steps.test-end-timestamp.outputs.timestamp }}
