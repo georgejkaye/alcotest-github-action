@@ -1,3 +1,5 @@
+open Ppx_compare_lib.Builtin
+
 module type Extras = sig
   module Environment : Object.T
 end
@@ -25,7 +27,7 @@ module Make (Extras : Extras) = struct
     healthy : bool option;
     extra : Extras.Environment.t option;
   }
-  [@@deriving make, show, yojson]
+  [@@deriving equal, make, show, yojson]
 end
 
 module MakeWithNoExtras = Make (EmptyExtras)

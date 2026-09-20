@@ -1,3 +1,5 @@
+open Ppx_compare_lib.Builtin
+
 module type Extras = sig
   module Baseline : Object.T
 end
@@ -17,7 +19,7 @@ module Make (Extras : Extras) = struct
     commit : string option;
     extra : Extras.Baseline.t option;
   }
-  [@@deriving make, show, yojson]
+  [@@deriving equal, make, show, yojson]
 end
 
 module MakeWithNoExtras = Make (EmptyExtras)

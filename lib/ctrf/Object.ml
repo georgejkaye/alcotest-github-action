@@ -5,12 +5,13 @@ module type T = sig
 
   val pp : Format.formatter -> t -> unit
   val show : t -> string
+  val equal : t -> t -> bool
   val to_yojson : t -> Yojson.Safe.t
   val of_yojson : Yojson.Safe.t -> (t, string) result
 end
 
 module Empty : T = struct
-  type t = unit [@@deriving show]
+  type t = unit [@@deriving show, equal]
 
   let to_yojson = function _ -> `Assoc []
   let of_yojson = function `Assoc [] -> Ok () | _ -> Error "Object.Empty.t"

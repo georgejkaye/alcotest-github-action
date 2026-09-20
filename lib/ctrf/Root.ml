@@ -1,3 +1,5 @@
+open Ppx_compare_lib.Builtin
+
 module RunInsight = struct
   module type Extras = sig
     module RunInsight : Object.T
@@ -18,7 +20,7 @@ module RunInsight = struct
       runsAnalyzed : int option;
       extra : Extras.RunInsight.t option;
     }
-    [@@deriving make, show, yojson]
+    [@@deriving equal, make, show, yojson]
   end
 
   module MakeWithNoExtras = Make (EmptyExtras)
@@ -58,7 +60,7 @@ struct
     baseline : Baseline.t option;
     extra : Extras.Root.t option;
   }
-  [@@deriving make, show, yojson]
+  [@@deriving make, equal, show, yojson]
 end
 
 module MakeWithNoExtras = Make (EmptyExtras)

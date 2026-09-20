@@ -1,3 +1,4 @@
+open Ppx_compare_lib.Builtin
 open Util.Make
 
 module Attachment = struct
@@ -16,7 +17,7 @@ module Attachment = struct
       path : string;
       extra : Extras.Attachment.t option;
     }
-    [@@deriving make, show, yojson]
+    [@@deriving equal, make, show, yojson]
   end
 end
 
@@ -39,12 +40,13 @@ module TestInsight = struct
       executedInRuns : int option;
       extra : Extras.TestInsight.t option;
     }
-    [@@deriving make, show, yojson]
+    [@@deriving equal, make, show, yojson]
   end
 end
 
 module Status = struct
-  type t = Passed | Failed | Skipped | Pending | Other [@@deriving show]
+  type t = Passed | Failed | Skipped | Pending | Other
+  [@@deriving equal, show]
 
   let to_yojson t =
     `String
@@ -93,7 +95,7 @@ module RetryAttempt = struct
       attachment : Attachment.t list option;
       extra : Extras.RetryAttempt.t option;
     }
-    [@@deriving make, show, yojson]
+    [@@deriving equal, make, show, yojson]
   end
 end
 
@@ -108,7 +110,7 @@ module Step = struct
 
   module Make (Extras : Extras) = struct
     type t = { name : string; status : Status.t; extra : Extras.Step.t }
-    [@@deriving make, show, yojson]
+    [@@deriving equal, make, show, yojson]
   end
 end
 
@@ -168,7 +170,7 @@ struct
     insights : TestInsight.t list option;
     extra : Extras.Test.t option;
   }
-  [@@deriving make, show, yojson]
+  [@@deriving equal, make, show, yojson]
 end
 
 module MakeWithNoExtras = Make (EmptyExtras)

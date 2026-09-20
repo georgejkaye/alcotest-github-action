@@ -1,2 +1,4 @@
+open Ppx_compare_lib.Builtin
+
 type t = { current : int option; baseline : int option; change : int option }
-[@@deriving make, show, yojson]
+[@@deriving equal, make, show, yojson]
