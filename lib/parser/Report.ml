@@ -125,7 +125,7 @@ end = struct
           ~message:test.log () ~trace:test.trace)
 
   let to_ctrf_environment ~env report =
-    let get_workflow_url =
+    let get_workflow_url () =
       let server_url = Env.getenv_exn env "GITHUB_SERVER_URL" in
       let repo = Env.getenv_exn env "GITHUB_REPOSITORY" in
       let run_id = Env.getenv_exn env "GITHUB_RUN_ID" in
@@ -136,7 +136,7 @@ end = struct
       ~buildId:(Env.getenv_exn env "GITHUB_RUN_ID")
       ~buildName:(Env.getenv_exn env "GITHUB_WORKFLOW")
       ~buildNumber:(Env.getenv_exn env "GITHUB_RUN_NUMBER" |> Int.of_string)
-      ~buildUrl:get_workflow_url
+      ~buildUrl:(get_workflow_url ())
       ~commit:(Env.getenv_exn env "GITHUB_SHA")
       ~branchName:(Env.getenv_exn env "GITHUB_REF")
       ~osPlatform:(Env.getenv_exn env "RUNNER_OS")
