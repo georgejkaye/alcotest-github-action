@@ -150,7 +150,9 @@ end = struct
   let to_ctrf tr ~env =
     Root.make ~reportFormat:"CTRF" ~specVersion:"0.0.0"
       ~reportId:(Uuid.get_uuid_string ())
-      ~timestamp:(Time_float_unix.to_string tr.start_timestamp)
+      ~timestamp:
+        (Time_float_unix.format tr.start_timestamp "%Y-%m-%dT%H:%M:%S"
+           ~zone:Time_float_unix.Zone.utc)
       ~generatedBy:"alcotest-github-action"
       ~results:
         (Root.Results.make ~tool:(to_ctrf_tool tr) ~summary:(to_ctrf_summary tr)
