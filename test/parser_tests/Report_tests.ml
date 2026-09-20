@@ -70,7 +70,7 @@ let of_test_headlines () =
       ~success:true
   in
   let headlines = [ headline1; headline2; headline3; headline4 ] in
-  let tests =
+  let expected_tests =
     [
       Parser.Test.make ~name:"test_1" ~suite:"test_suite_1" ~index:1
         ~success:true ~log:test_log_1 ~trace:None;
@@ -84,7 +84,7 @@ let of_test_headlines () =
   in
   let expected =
     Report.make ~name ~id ~version ~start_timestamp ~end_timestamp ~count:4
-      ~passed:2 ~failed:2 ~suites:2 ~tests ()
+      ~passed:2 ~failed:2 ~suites:2 ~tests:expected_tests ()
   in
   let result =
     Report.of_test_headlines fs ~name ~id ~start_timestamp ~end_timestamp
@@ -92,6 +92,47 @@ let of_test_headlines () =
   in
   Alcotest.check Testable_report.report "of_test_headlines" expected result
 
+let of_test_headlines_missing_log () =
+  let name = "test_run" in
+  let id = "123456" in
+  let start_timestamp =
+    Time_float_unix.parse ~fmt:timestamp_fmt "2026-09-14T21:20:09"
+      ~zone:Time_float_unix.Zone.utc
+  in
+  let end_timestamp =
+    Time_float_unix.parse ~fmt:timestamp_fmt "2026-09-14T21:20:17"
+      ~zone:Time_float_unix.Zone.utc
+  in
+  let version = "1.9.1" in
+  let log_root = Fpath.v "/test/log/path/_build/_tests/123456" in
+  let headlines =
+    [
+      Parser.Headline.make ~test_suite:"test_suite_1" ~index:1 ~name:"test_1"
+        ~success:true;
+    ]
+  in
+  let fs = File_wrapper.init_state in
+  let expected_tests =
+    [
+      Parser.Test.make ~name:"test_1" ~suite:"test_suite_1" ~index:1
+        ~success:true ~log:"file does not exist" ~trace:None;
+    ]
+  in
+  let expected =
+    Report.make ~name ~id ~version ~start_timestamp ~end_timestamp ~count:1
+      ~passed:1 ~failed:0 ~suites:1 ~tests:expected_tests ()
+  in
+  let result =
+    Report.of_test_headlines fs ~name ~id ~start_timestamp ~end_timestamp
+      ~version ~log_root headlines
+  in
+  Alcotest.check Testable_report.report "of_test_headlines_missing_log" expected
+    result
+
 let tests =
   ( "Parser.Report",
-    [ Alcotest.test_case "of_test_headlines" `Quick of_test_headlines ] )
+    [
+      Alcotest.test_case "of_test_headlines" `Quick of_test_headlines;
+      Alcotest.test_case "of_test_headlines_missing_log" `Quick
+        of_test_headlines_missing_log;
+    ] )
