@@ -26,7 +26,7 @@ let path_of_string_arg_exn ?(arg_name = "") path =
 
 let datetime_of_string_arg_exn ?(arg_name = "") arg =
   let argument_name_string = get_argument_name_string arg_name in
-  match Time_float_unix.parse_result arg with
+  match Time_float_unix.parse_iso_result arg with
   | Ok datetime -> datetime
   | Error exn ->
       failwith
