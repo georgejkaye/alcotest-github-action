@@ -127,7 +127,35 @@ let get_test_headlines () =
   let result = Parser.Output.get_test_headlines output in
   Alcotest.check
     (Helpers.Testable.list Helpers.Testable.headline)
-    "get_name" headlines result
+    "get_test_headlines" headlines result
+
+let get_test_headlines_omit_malformed_headline () =
+  let headline1 =
+    Parser.Headline.make ~test_suite:"test_suite_1" ~index:1 ~name:"test_1"
+      ~success:true
+  in
+  let headline2 =
+    Parser.Headline.make ~test_suite:"test_suite_1" ~index:2 ~name:"test_2"
+      ~success:false
+  in
+  let headline3 =
+    Parser.Headline.make ~test_suite:"test_suite_2" ~index:1 ~name:"test_1"
+      ~success:false
+  in
+  let headline4 =
+    Parser.Headline.make ~test_suite:"test_suite_2" ~index:2 ~name:"test_2"
+      ~success:true
+  in
+  let headlines = [ headline1; headline2; headline3; headline4 ] in
+  let output =
+    Output_helpers.make ~executable_name:"test_executable" ~run_id:"123456"
+      ~headlines
+    ^ "this is not a valid headline"
+  in
+  let result = Parser.Output.get_test_headlines output in
+  Alcotest.check
+    (Helpers.Testable.list Helpers.Testable.headline)
+    "get_test_headlines_omit_malformed_headline" headlines result
 
 let tests =
   ( "Parser.Output",
@@ -135,4 +163,6 @@ let tests =
       Alcotest.test_case "get_name" `Quick get_name;
       Alcotest.test_case "get_id" `Quick get_id;
       Alcotest.test_case "get_test_headlines" `Quick get_test_headlines;
+      Alcotest.test_case "get_test_headlines_omit_malformed_headline" `Quick
+        get_test_headlines_omit_malformed_headline;
     ] )
