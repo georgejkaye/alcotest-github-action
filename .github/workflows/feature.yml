@@ -110,8 +110,10 @@ jobs:
     - name: Publish test report
       uses: ctrf-io/github-test-reporter@v1.3.0
       with:
+        title: Test results
         report-path: ${{ env.CTRF_OUTPUT }}
         upload-artifact: true
+        summary-report: true
         fetch-previous-results: true
         github-report: true
         failed-folded-report: true
