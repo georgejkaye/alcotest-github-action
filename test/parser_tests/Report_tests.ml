@@ -11,6 +11,20 @@ module Testable_report =
 let ( / ) = Fpath.( / )
 let timestamp_fmt = "%Y-%m-%dT%H:%M:%S"
 
+let setup_github_actions_env ~repo ~run_id ~workflow_name ~run_number
+    ~server_url ~commit ~branch_name ~os =
+  Env_wrapper.v
+  |> Env_wrapper.add_env_variable ~key:"GITHUB_REPOSITORY" ~value:repo
+  |> Env_wrapper.add_env_variable ~key:"GITHUB_RUN_ID" ~value:run_id
+  |> Env_wrapper.add_env_variable ~key:"GITHUB_WORKFLOW" ~value:workflow_name
+  |> Env_wrapper.add_env_variable ~key:"GITHUB_RUN_NUMBER"
+       ~value:(Int.to_string run_number)
+  |> Env_wrapper.add_env_variable ~key:"GITHUB_SERVER_URL" ~value:server_url
+  |> Env_wrapper.add_env_variable ~key:"GITHUB_REPOSITORY" ~value:repo
+  |> Env_wrapper.add_env_variable ~key:"GITHUB_SHA" ~value:commit
+  |> Env_wrapper.add_env_variable ~key:"GITHUB_REF" ~value:branch_name
+  |> Env_wrapper.add_env_variable ~key:"RUNNER_OS" ~value:os
+
 let of_test_headlines () =
   let test_log_1 = "test output 1" in
   let test_log_2 = "test output 2" in
@@ -159,17 +173,8 @@ let to_ctrf () =
   let branch_name = "develop" in
   let os = "linux" in
   let env =
-    Env_wrapper.v
-    |> Env_wrapper.add_env_variable ~key:"GITHUB_REPOSITORY" ~value:repo
-    |> Env_wrapper.add_env_variable ~key:"GITHUB_RUN_ID" ~value:run_id
-    |> Env_wrapper.add_env_variable ~key:"GITHUB_WORKFLOW" ~value:workflow_name
-    |> Env_wrapper.add_env_variable ~key:"GITHUB_RUN_NUMBER"
-         ~value:(Int.to_string run_number)
-    |> Env_wrapper.add_env_variable ~key:"GITHUB_SERVER_URL" ~value:server_url
-    |> Env_wrapper.add_env_variable ~key:"GITHUB_REPOSITORY" ~value:repo
-    |> Env_wrapper.add_env_variable ~key:"GITHUB_SHA" ~value:commit
-    |> Env_wrapper.add_env_variable ~key:"GITHUB_REF" ~value:branch_name
-    |> Env_wrapper.add_env_variable ~key:"RUNNER_OS" ~value:os
+    setup_github_actions_env ~repo ~run_id ~workflow_name ~run_number
+      ~server_url ~commit ~branch_name ~os
   in
   let tests =
     [
@@ -212,6 +217,166 @@ let to_ctrf () =
   let result = Report.to_ctrf ~env report in
   Alcotest.check Helpers.Testable.root_with_no_extras "to_ctrf" expected result
 
+let to_ctrf_failed () =
+  let name = "test_run" in
+  let id = "123456" in
+  let start_timestamp_string = "2026-09-14T21:20:09" in
+  let start_unix_timestamp = 1789420809 in
+  let start_timestamp =
+    Time_float_unix.parse ~fmt:timestamp_fmt start_timestamp_string
+      ~zone:Time_float_unix.Zone.utc
+  in
+  let end_unix_timestamp = 1789420817 in
+  let end_timestamp =
+    Time_float_unix.parse ~fmt:timestamp_fmt "2026-09-14T21:20:17"
+      ~zone:Time_float_unix.Zone.utc
+  in
+  let version = "1.9.1" in
+  let run_id = "1234" in
+  let workflow_name = "build workflow" in
+  let run_number = 1 in
+  let server_url = "https://example.com" in
+  let repo = "test/test-repo" in
+  let commit = "182ec12" in
+  let branch_name = "develop" in
+  let os = "linux" in
+  let env =
+    setup_github_actions_env ~repo ~run_id ~workflow_name ~run_number
+      ~server_url ~commit ~branch_name ~os
+  in
+  let test_log = "This is the first log" in
+  let test_trace = Some "Raised at line 34" in
+  let tests =
+    [
+      Parser.Test.make ~name:"test_1" ~suite:"suite_1" ~index:1 ~success:false
+        ~log:test_log ~trace:test_trace;
+    ]
+  in
+  let report =
+    Report.make ~name ~id ~version ~start_timestamp ~end_timestamp ~count:1
+      ~passed:0 ~failed:1 ~suites:1 ~tests ()
+  in
+  let expected =
+    Root.make ~reportFormat:"CTRF" ~specVersion:"0.0.0"
+      ~reportId:Uuid_wrapper.uuid ~timestamp:start_timestamp_string
+      ~generatedBy:"alcotest-github-action"
+      ~results:
+        (Root.Results.make
+           ~tool:(Root.Results.Tool.make ~name:"Alcotest" ~version ())
+           ~summary:
+             (Root.Results.Summary.make ~tests:1 ~passed:0 ~failed:1 ~pending:0
+                ~skipped:0 ~other:0 ~suites:1 ~flaky:0
+                ~start:start_unix_timestamp ~stop:end_unix_timestamp
+                ~duration:(end_unix_timestamp - start_unix_timestamp)
+                ())
+           ~tests:
+             [
+               Root.Results.Test.make ~name:"test_1"
+                 ~status:Ctrf.Test.Status.Failed ~duration:0
+                 ~suite:[ "suite_1" ] ~message:test_log ~trace:test_trace ();
+             ]
+           ~environment:
+             (Root.Results.Environment.make ~appName:repo ~buildId:run_id
+                ~buildName:workflow_name ~buildNumber:run_number
+                ~buildUrl:
+                  {%string|%{server_url}/%{repo}/actions/runs/%{run_id}|}
+                ~commit ~branchName:branch_name ~osPlatform:os ())
+           ())
+      ()
+  in
+  let result = Report.to_ctrf ~env report in
+  Alcotest.check Helpers.Testable.root_with_no_extras "to_ctrf_failed" expected
+    result
+
+let to_ctrf_suites () =
+  let name = "test_run" in
+  let id = "123456" in
+  let start_timestamp_string = "2026-09-14T21:20:09" in
+  let start_unix_timestamp = 1789420809 in
+  let start_timestamp =
+    Time_float_unix.parse ~fmt:timestamp_fmt start_timestamp_string
+      ~zone:Time_float_unix.Zone.utc
+  in
+  let end_unix_timestamp = 1789420817 in
+  let end_timestamp =
+    Time_float_unix.parse ~fmt:timestamp_fmt "2026-09-14T21:20:17"
+      ~zone:Time_float_unix.Zone.utc
+  in
+  let version = "1.9.1" in
+  let run_id = "1234" in
+  let workflow_name = "build workflow" in
+  let run_number = 1 in
+  let server_url = "https://example.com" in
+  let repo = "test/test-repo" in
+  let commit = "182ec12" in
+  let branch_name = "develop" in
+  let os = "linux" in
+  let env =
+    setup_github_actions_env ~repo ~run_id ~workflow_name ~run_number
+      ~server_url ~commit ~branch_name ~os
+  in
+  let test_log_1 = "This is the first log" in
+  let test_log_2 = "This is the second log" in
+  let test_log_3 = "This is the third log" in
+  let test_log_4 = "This is the fourth log" in
+  let tests =
+    [
+      Parser.Test.make ~name:"test_1" ~suite:"Test.Suite" ~index:1 ~success:true
+        ~log:test_log_1 ~trace:None;
+      Parser.Test.make ~name:"test_2" ~suite:"Test.Suite" ~index:2 ~success:true
+        ~log:test_log_2 ~trace:None;
+      Parser.Test.make ~name:"test_3" ~suite:"Test.OtherSuite" ~index:1
+        ~success:true ~log:test_log_3 ~trace:None;
+      Parser.Test.make ~name:"test_4" ~suite:"OtherTest.OtherSuite" ~index:1
+        ~success:true ~log:test_log_4 ~trace:None;
+    ]
+  in
+  let report =
+    Report.make ~name ~id ~version ~start_timestamp ~end_timestamp ~count:1
+      ~passed:0 ~failed:1 ~suites:1 ~tests ()
+  in
+  let expected =
+    Root.make ~reportFormat:"CTRF" ~specVersion:"0.0.0"
+      ~reportId:Uuid_wrapper.uuid ~timestamp:start_timestamp_string
+      ~generatedBy:"alcotest-github-action"
+      ~results:
+        (Root.Results.make
+           ~tool:(Root.Results.Tool.make ~name:"Alcotest" ~version ())
+           ~summary:
+             (Root.Results.Summary.make ~tests:1 ~passed:0 ~failed:1 ~pending:0
+                ~skipped:0 ~other:0 ~suites:1 ~flaky:0
+                ~start:start_unix_timestamp ~stop:end_unix_timestamp
+                ~duration:(end_unix_timestamp - start_unix_timestamp)
+                ())
+           ~tests:
+             [
+               Root.Results.Test.make ~name:"test_1"
+                 ~status:Ctrf.Test.Status.Passed ~duration:0
+                 ~suite:[ "Test"; "Suite" ] ~message:test_log_1 ();
+               Root.Results.Test.make ~name:"test_2"
+                 ~status:Ctrf.Test.Status.Passed ~duration:0
+                 ~suite:[ "Test"; "Suite" ] ~message:test_log_2 ();
+               Root.Results.Test.make ~name:"test_3"
+                 ~status:Ctrf.Test.Status.Passed ~duration:0
+                 ~suite:[ "Test"; "OtherSuite" ] ~message:test_log_3 ();
+               Root.Results.Test.make ~name:"test_4"
+                 ~status:Ctrf.Test.Status.Passed ~duration:0
+                 ~suite:[ "OtherTest"; "OtherSuite" ]
+                 ~message:test_log_4 ();
+             ]
+           ~environment:
+             (Root.Results.Environment.make ~appName:repo ~buildId:run_id
+                ~buildName:workflow_name ~buildNumber:run_number
+                ~buildUrl:
+                  {%string|%{server_url}/%{repo}/actions/runs/%{run_id}|}
+                ~commit ~branchName:branch_name ~osPlatform:os ())
+           ())
+      ()
+  in
+  let result = Report.to_ctrf ~env report in
+  Alcotest.check Helpers.Testable.root_with_no_extras "to_ctrf_failed" expected
+    result
+
 let tests =
   ( "Parser.Report",
     [
@@ -219,4 +384,6 @@ let tests =
       Alcotest.test_case "of_test_headlines_missing_log" `Quick
         of_test_headlines_missing_log;
       Alcotest.test_case "to_ctrf" `Quick to_ctrf;
+      Alcotest.test_case "to_ctrf_failed" `Quick to_ctrf_failed;
+      Alcotest.test_case "to_ctrf_suites" `Quick to_ctrf_suites;
     ] )
