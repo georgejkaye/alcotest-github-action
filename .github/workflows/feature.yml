@@ -122,7 +122,7 @@ jobs:
       with:
           name: coverage.cobertura.xml
           path: ${{ env.COVERAGE_OUTPUT }}
-      if: success() || steps.run-tests.outcome == 'failure
+      if: success() || steps.run-tests.outcome == 'failure'
 
     - name: Generate test coverage report
       uses: 5monkeys/cobertura-action@v14
