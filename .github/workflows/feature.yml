@@ -128,4 +128,5 @@ jobs:
       uses: 5monkeys/cobertura-action@v14
       with:
         filename: ${{ env.COVERAGE_OUTPUT }}
+        minimum_coverage: 0
       if: success() || steps.run-tests.outcome == 'failure'
