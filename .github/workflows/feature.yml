@@ -12,6 +12,7 @@ jobs:
       ALCOTEST_OUTPUT: _output/test_results.txt
       COVERAGE_OUTPUT: _output/coverage.cobertura.xml
       CTRF_OUTPUT: _output/alcotest-ctrf.json
+      BUILDX_CACHE: /tmp/.buildx-cache
 
     steps:
     - name: Check out repo
@@ -31,6 +32,9 @@ jobs:
           ${{ runner.os }}-buildx-opam-
           ${{ runner.os }}-buildx-
 
+    - name: Initialise cache directories
+      run: mkdir -p ${{ env.BUILDX_CACHE }} ${{ env.BUILDX_CACHE }}-new
+
     - name: Build workspaces via Bake
       uses: docker/bake-action@v7
       with:
@@ -39,15 +43,15 @@ jobs:
         set: |
           *.cache-from=type=gha,scope=opam-shared-cache
           *.cache-to=type=gha,mode=max,scope=opam-shared-cache
-          *.cache-from=type=local,src=/tmp/.buildx-cache
-          *.cache-to=type=local,dest=/tmp/.buildx-cache-new,mode=max
+          *.cache-from=type=local,src=${{ env.BUILDX_CACHE }}
+          *.cache-to=type=local,dest=${{ env.BUILDX_CACHE }}-new,mode=max
           builder_export.tags=builder
           tester_export.tags=tester
 
     - name: Move cache layers
       run: |
-        rm -rf /tmp/.buildx-cache
-        mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+        rm -rf ${{ env.BUILDX_CACHE }}
+        mv ${{ env.BUILDX-CACHE }}-new ${{ env.BUILDX_CACHE }}
       if: always()
 
     - name: Get Alcotest version
