@@ -22,6 +22,8 @@ RUN opam exec -- dune build bin
 
 FROM builder AS tester
 
+COPY --chown=opam:opam *.opam dune-project ./
+
 RUN \
     --mount=type=cache,target=/home/opam/.opam/download-cache,sharing=locked,uid=1000,gid=1000 \
     --mount=type=cache,target=/home/opam/.cache/dune,sharing=locked,uid=1000,gid=1000 \
