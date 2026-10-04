@@ -40,7 +40,6 @@ jobs:
         set: |
           *.cache-from=type=gha,scope=opam-shared-cache
           *.cache-to=type=gha,mode=max,scope=opam-shared-cache
-          *.context-type=image
           tester_export.contexts.builder=container-image://builder
           tester_export.tags=tester
 
