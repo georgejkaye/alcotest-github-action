@@ -28,8 +28,10 @@ jobs:
         load: true
         targets: builder_export,tester_export
         set: |
-          *.cache-from=type=gha,scope=opam-shared-cache
-          *.cache-to=type=gha,mode=max,scope=opam-shared-cache
+          builder_export.cache-from=type=gha,scope=opam-builder-cache
+          builder_export.cache-to=type=gha,mode=max,scope=opam-builder-cache
+          tester_export.cache-from=type=gha,scope=opam-tester-cache
+          tester_export.cache-to=type=gha,mode=max,scope=opam-tester-cache
           builder_export.tags=builder
           tester_export.tags=tester
 
