@@ -1,0 +1,6 @@
+.git
+.github
+_build
+_output
+*.txt
+*.json
