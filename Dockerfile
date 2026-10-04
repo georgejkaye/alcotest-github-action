@@ -2,31 +2,37 @@ FROM ocaml/opam:debian-12-ocaml-5.5 AS base
 
 WORKDIR /home/opam/action
 
-COPY --chown=opam:opam *.opam dune-project ./
-
 RUN opam update
 
 ENV DUNE_CACHE=enabled
 ENV DUNE_CACHE_STORAGE_MODE=copy
 
-FROM base AS builder
+FROM base AS dependencies
+
+COPY --chown=opam:opam *.opam dune-project ./
+
+FROM dependencies AS builder_dependencies
 
 RUN \
     --mount=type=cache,target=/home/opam/.opam/download-cache,sharing=locked,uid=1000,gid=1000 \
     --mount=type=cache,target=/home/opam/.cache/dune,sharing=locked,uid=1000,gid=1000 \
     opam install ./alcotest_action.opam --deps-only -y
 
-COPY bin bin
-COPY lib lib
-
-RUN opam exec -- dune build bin
-
-FROM builder AS tester
+FROM dependencies AS tester_dependencies
 
 RUN \
     --mount=type=cache,target=/home/opam/.opam/download-cache,sharing=locked,uid=1000,gid=1000 \
     --mount=type=cache,target=/home/opam/.cache/dune,sharing=locked,uid=1000,gid=1000 \
     opam install ./alcotest_action.opam --deps-only --with-test -y
+
+FROM builder_dependencies AS builder
+
+COPY bin bin
+COPY lib lib
+
+RUN opam exec -- dune build bin
+
+FROM tester_dependencies AS tester
 
 COPY test test
 
