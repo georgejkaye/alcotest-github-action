@@ -1,23 +1,33 @@
-target "builder" {
+target "_common" {
   context    = "."
   dockerfile = "Dockerfile"
-  target     = "builder"
+}
+
+target "builder" {
+  inherits = ["_common"]
+  target   = "builder"
 }
 
 target "builder_export" {
-  context    = "."
-  dockerfile = "Dockerfile"
-  target     = "builder_export"
+  inherits = ["_common"]
+  target   = "builder_export"
+  contexts = {
+    builder = "target:builder"
+  }
 }
 
 target "tester" {
-  context    = "."
-  dockerfile = "Dockerfile"
-  target     = "tester"
+  inherits = ["_common"]
+  target   = "tester"
+  contexts = {
+    builder = "target:builder"
+  }
 }
 
 target "tester_export" {
-  context    = "."
-  dockerfile = "Dockerfile"
-  target     = "tester_export"
+  inherits = ["_common"]
+  target   = "tester_export"
+  contexts = {
+    tester = "target:tester"
+  }
 }
