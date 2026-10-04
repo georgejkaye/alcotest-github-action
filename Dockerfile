@@ -14,7 +14,7 @@ FROM base AS builder
 RUN \
     --mount=type=cache,target=/home/opam/.opam/download-cache,sharing=locked,uid=1000,gid=1000 \
     --mount=type=cache,target=/home/opam/.cache/dune,sharing=locked,uid=1000,gid=1000 \
-    opam install alcotest_action.opam --deps-only -y
+    opam install ./alcotest_action.opam --deps-only -y
 
 COPY bin bin
 COPY lib lib
@@ -26,7 +26,7 @@ FROM builder AS tester
 RUN \
     --mount=type=cache,target=/home/opam/.opam/download-cache,sharing=locked,uid=1000,gid=1000 \
     --mount=type=cache,target=/home/opam/.cache/dune,sharing=locked,uid=1000,gid=1000 \
-    opam install alcotest_action.opam --deps-only --with-test -y
+    opam install ./alcotest_action.opam --deps-only --with-test -y
 
 COPY test test
 
