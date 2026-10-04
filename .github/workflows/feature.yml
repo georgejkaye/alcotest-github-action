@@ -123,7 +123,7 @@ jobs:
           path: ${{ env.COVERAGE_OUTPUT }}
       if: success() || steps.run-tests.outcome == 'failure'
 
-   - name: Restructure Cobertura XML Packages for Summary Breakdowns
+    - name: Restructure Cobertura XML Packages for Summary Breakdowns
       run: |
         sed -i 's/<class name="\([^"]*\)" filename="\([^"]*\)"/<package name="\1" line-rate="0.0"><classes><class name="\1" filename="\2"/g' ${{ github.workspace }}/${{ env.COVERAGE_OUTPUT }}
 
