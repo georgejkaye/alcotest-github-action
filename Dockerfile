@@ -34,6 +34,8 @@ RUN opam exec -- dune build bin
 
 FROM tester_dependencies AS tester
 
+COPY bin bin
+COPY lib lib
 COPY test test
 
 RUN opam exec -- dune build --instrument-with bisect_ppx_ng test/test.exe
