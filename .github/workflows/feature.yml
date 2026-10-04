@@ -50,15 +50,21 @@ jobs:
     - name: Run tests
       id: run-tests
       run: |
-        set -o pipefail
         docker run --rm \
           -v ${{ github.workspace }}/_build:/home/opam/action/_build \
           -v ${{ github.workspace }}/_output:/home/opam/action/_output \
           -w /home/opam/action \
           tester \
-          sh -c '
+          bash -c '
+            set -o pipefail
+
             /home/opam/action/test.exe 2>&1 | tee ${{ env.ALCOTEST_OUTPUT }}
+            TEST_EXIT_CODE=$?
+
             /home/opam/action/bisect-ppx-report cobertura ${{ env.COVERAGE_OUTPUT }}
+            REPORT_EXIT_CODE=$?
+
+            [ $TEST_EXIT_CODE -eq 0 ] && [ $REPORT_EXIT_CODE -eq 0 ]
           '
 
     - name: Get testing end timestamp
