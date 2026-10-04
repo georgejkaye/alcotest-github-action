@@ -123,6 +123,10 @@ jobs:
           path: ${{ env.COVERAGE_OUTPUT }}
       if: success() || steps.run-tests.outcome == 'failure'
 
+   - name: Restructure Cobertura XML Packages for Summary Breakdowns
+      run: |
+        sed -i 's/<class name="\([^"]*\)" filename="\([^"]*\)"/<package name="\1" line-rate="0.0"><classes><class name="\1" filename="\2"/g' ${{ github.workspace }}/${{ env.COVERAGE_OUTPUT }}
+
     - name: Generate code coverage summary
       uses: irongut/CodeCoverageSummary@v1.3.0
       with:
@@ -132,6 +136,8 @@ jobs:
         format: markdown
         output: both
         thresholds: '50 75'
+        indicators: true
+        hide_complexity: false
       if: success() || steps.run-tests.outcome == 'failure'
 
     - name: Add coverage to job summary
