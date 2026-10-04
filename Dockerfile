@@ -20,7 +20,7 @@ COPY lib lib
 
 RUN opam exec -- dune build bin
 
-FROM base AS tester
+FROM builder AS tester
 
 RUN \
     --mount=type=cache,target=/home/opam/.opam/download-cache,sharing=locked,uid=1000,gid=1000 \
@@ -28,8 +28,6 @@ RUN \
     opam update && \
     opam install . --deps-only --with-test -y
 
-COPY bin bin
-COPY lib lib
 COPY test test
 
 RUN opam exec -- dune build --instrument-with bisect_ppx_ng test/test.exe
