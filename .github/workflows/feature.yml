@@ -12,7 +12,6 @@ jobs:
       ALCOTEST_OUTPUT: _output/test_results.txt
       COVERAGE_OUTPUT: _output/coverage.cobertura.xml
       CTRF_OUTPUT: _output/alcotest-ctrf.json
-      BUILDX_CACHE: /tmp/.buildx-cache
 
     steps:
     - name: Check out repo
