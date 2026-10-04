@@ -22,25 +22,15 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v4
 
-    - name: Build and cache builder
+    - name: Build All Targets via Bake
       uses: docker/bake-action@v7
       with:
         load: true
-        targets: builder_export
+        targets: builder_export,tester_export
         set: |
           *.cache-from=type=gha,scope=opam-shared-cache
           *.cache-to=type=gha,mode=max,scope=opam-shared-cache
-          builder.tags=builder
-
-    - name: Build and cache tester
-      uses: docker/bake-action@v7
-      with:
-        load: true
-        targets: tester_export
-        set: |
-          *.cache-from=type=gha,scope=opam-shared-cache
-          *.cache-to=type=gha,mode=max,scope=opam-shared-cache
-          tester_export.contexts.builder=container-image://builder
+          builder_export.tags=builder
           tester_export.tags=tester
 
     - name: Get Alcotest version
