@@ -11,7 +11,9 @@ let run ~alcotest_input_path ~build_root_dir ~ctrf_output_path ~start_timestamp
   | Second msg -> failwith msg
   | First test_output -> (
       match Alcotest.Output.get_id test_output with
-      | Second msg -> failwith msg
+      | Second msg ->
+          failwith
+            {%string|Could not process test suite, output was:\n\n%{test_output}|}
       | First test_run_id -> (
           let test_run_name =
             match Alcotest.Output.get_name test_output with
