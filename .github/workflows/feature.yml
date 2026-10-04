@@ -67,7 +67,6 @@ jobs:
     - name: Set permissions on test output
       run: |
         sudo chown -R $(id -u):$(id -g) ${{ github.workspace }}/_build ${{ github.workspace }}/_output
-
       if: success() || steps.run-tests.outcome == 'failure'
 
     - name: Upload test output artifact
