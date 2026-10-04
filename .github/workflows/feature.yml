@@ -141,9 +141,10 @@ jobs:
         format: markdown
         output: both
         thresholds: '50 75'
+      if: success() || steps.run-tests.outcome == 'failure'
 
-    - name: Append Coverage to Job Summary
+    - name: Append coverage to job summary
       run: |
         echo "### Code Coverage Report" >> $GITHUB_STEP_SUMMARY
         cat code-coverage-results.md >> $GITHUB_STEP_SUMMARY
-      if: always()
+      if: success() || steps.run-tests.outcome == 'failure'
